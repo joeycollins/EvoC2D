@@ -27,12 +27,24 @@
     <ClCompile Include="sequence.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="genome.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="innovation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sequence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="connection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="genome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

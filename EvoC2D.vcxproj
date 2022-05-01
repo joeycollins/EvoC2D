@@ -143,11 +143,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Downloads\src\glad.c" />
+    <ClCompile Include="genome.c" />
     <ClCompile Include="innovation.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="sequence.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="connection.h" />
+    <ClInclude Include="gene.h" />
+    <ClInclude Include="genome.h" />
     <ClInclude Include="innovation.h" />
     <ClInclude Include="sequence.h" />
   </ItemGroup>

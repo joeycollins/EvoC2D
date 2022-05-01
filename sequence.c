@@ -1,19 +1,21 @@
 #include "sequence.h"
 
-#define SEQUENCE_ADD(T, N) \
-	T* sequence_add_##N(T* sequence, T element, int* count, int* capacity){ \
-		if (*count + 1 == *capacity) { \
-			*capacity += 1000; \
-			T* new_sequence = realloc(sequence, *capacity * sizeof(T));\
-			if (new_sequence != NULL){ \
-				sequence = new_sequence; \
-			} \
+#define SEQUENCE_ADD(S, T, N) \
+	T* sequence_add_##N(S* sequence, T element){ \
+		if (sequence->count + 1 == sequence->capacity) { \
+			sequence->capacity += sequence->realloc_amt; \
+			T* new_buffer = realloc(sequence->buffer, sequence->capacity * sizeof(T));\
+			if (new_buffer != NULL){ \
+				sequence->buffer = new_buffer; \
+			} else { \
+				perror("New sequence buffer is NULL in add_sequence"); \
+			}\
 		} \
-		sequence[*count] = element; \
-		T* addr = sequence + *count; \
-		(*count)++; \
+		sequence->buffer[sequence->count] = element; \
+		T* addr = sequence->buffer + sequence->count; \
+		sequence->count++; \
 		return addr;\
 	} \
 
-SEQUENCE_ADD(struct add_connection_innovation, connection_innovation)
-SEQUENCE_ADD(struct add_gene_innovation, gene_innovation)
+SEQUENCE_ADD(struct add_connection_innovation_sequence, struct add_connection_innovation, connection_innovation)
+SEQUENCE_ADD(struct add_gene_innovation_sequence, struct add_gene_innovation, gene_innovation)
