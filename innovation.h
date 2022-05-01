@@ -38,6 +38,8 @@ struct innovation_context {
 
 struct innovation_context get_new_innovation_context();
 
+void free_innovation_context(struct innovation_context* context);
+
 struct add_gene_innovation get_add_gene_innovation(struct innovation_context* context, int connection_split_innov);
 
 struct add_connection_innovation get_add_connection_innovation(struct innovation_context* context,

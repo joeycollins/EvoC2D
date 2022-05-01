@@ -1,4 +1,5 @@
 #include "sequence.h"
+#include <stdlib.h>
 
 #define SEQUENCE_ADD(S, T, N) \
 	T* sequence_add_##N(S* sequence, T element){ \
@@ -19,3 +20,5 @@
 
 SEQUENCE_ADD(struct add_connection_innovation_sequence, struct add_connection_innovation, connection_innovation)
 SEQUENCE_ADD(struct add_gene_innovation_sequence, struct add_gene_innovation, gene_innovation)
+SEQUENCE_ADD(struct gene_sequence, struct gene, gene)
+SEQUENCE_ADD(struct connection_sequence, struct connection, connection)

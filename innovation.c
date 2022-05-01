@@ -22,6 +22,11 @@ struct innovation_context get_new_innovation_context() {
 	return new_context;
 }
 
+void free_innovation_context(struct innovation_context* context) {
+	free(context->add_connection_innovations.buffer);
+	free(context->add_gene_innovations.buffer);
+}
+
 int get_new_innovation_number(struct innovation_context* context) {
 	int new_number = context->innovation_number;
 	context->innovation_number++;
