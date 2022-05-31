@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{2694cf54-9d4d-4e44-b6aa-9c65edae6093}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -28,6 +31,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="genome.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="evoshader.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,5 +53,16 @@
     <ClInclude Include="genome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="evoshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vertexshader1.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="fragmentshader1.fs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

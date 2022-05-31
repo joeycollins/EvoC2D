@@ -1,11 +1,12 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
+#include "gene.h"
 #include <stdbool.h>
 
 struct connection {
 	int innovation_number;
-	int first_gene_id;
-	int second_gene_id;
+	struct gene* first_gene;
+	struct gene* second_gene;
 	float weight;
 	bool enabled;
 	bool split;

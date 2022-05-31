@@ -17,4 +17,13 @@ struct genome {
 
 };
 
+
+struct genome get_new_genome(unsigned int inputs, unsigned int outputs);
+
+void free_genome(struct genome* genome);
+
+void mutate_add_connection(struct genome* genome, struct innovation_context* context, bool allow_recurrent, unsigned int seed);
+
+void mutate_add_gene(struct genome* genome, struct innovation_context* context, unsigned int seed);
+
 #endif
