@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Downloads\src\glad.c" />
+    <ClCompile Include="creature.c" />
     <ClCompile Include="evoshader.c" />
     <ClCompile Include="genome.c" />
     <ClCompile Include="innovation.c" />
@@ -150,12 +151,15 @@
     <ClCompile Include="sequence.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="component.h" />
     <ClInclude Include="connection.h" />
+    <ClInclude Include="creature.h" />
     <ClInclude Include="evoshader.h" />
     <ClInclude Include="gene.h" />
     <ClInclude Include="genome.h" />
     <ClInclude Include="innovation.h" />
     <ClInclude Include="sequence.h" />
+    <ClInclude Include="shapes.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentshader1.fs" />

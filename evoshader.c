@@ -90,3 +90,48 @@ void set_uniform_int(unsigned int id, const char* uniform_name, int value) {
 void set_uniform_float(unsigned int id, const char* uniform_name, float value) {
 	glUniform1f(glGetUniformLocation(id, uniform_name), value);
 }
+
+void set_vec2(unsigned int id, const char* uniform_name, const vec2* value)
+{
+	glUniform2fv(glGetUniformLocation(id, uniform_name), 1, &value[0]);
+}
+
+void set_vec2_f(unsigned int id, const char* uniform_name, float x, float y)
+{
+	glUniform2f(glGetUniformLocation(id, uniform_name), x, y);
+}
+
+void set_vec3(unsigned int id, const char* uniform_name, const vec3* value)
+{
+	glUniform3fv(glGetUniformLocation(id, uniform_name), 1, &value[0]);
+}
+
+void set_vec3_f(unsigned int id, const char* uniform_name, float x, float y, float z)
+{
+	glUniform3f(glGetUniformLocation(id, uniform_name), x, y, z);
+}
+
+void set_vec4(unsigned int id, const char* uniform_name, const vec4* value)
+{
+	glUniform4fv(glGetUniformLocation(id, uniform_name), 1, &value[0]);
+}
+
+void set_vec4_f(unsigned int id, const char* uniform_name, float x, float y, float z, float w)
+{
+	glUniform4f(glGetUniformLocation(id, uniform_name), x, y, z, w);
+}
+
+void set_mat2(unsigned int id, const char* uniform_name, const mat2* mat)
+{
+	glUniformMatrix2fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, &mat[0][0]);
+}
+
+void set_mat3(unsigned int id, const char* uniform_name, const mat3* mat)
+{
+	glUniformMatrix3fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, &mat[0][0]);
+}
+
+void set_mat4(unsigned int id, const char* uniform_name, const mat4* mat)
+{
+	glUniformMatrix4fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, &mat[0][0]);
+}

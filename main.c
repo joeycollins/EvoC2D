@@ -10,7 +10,6 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-// settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
@@ -46,15 +45,22 @@ int main()
         printf("Failed to initialize GLAD");
         return -1;
     }
+    mat4 trans;
+    vec3 rotation = { 0,0,1 };
+    glm_mat4_identity(&trans);
+    //glm_rotate(trans, 90, rotation);
+    //glm_scale(trans, scale);
+
+    printf(trans);
 
     unsigned int shaderProgram = build_shader("vertexshader1.vs", "fragmentshader1.fs");
-
+    
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,// right 
-         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f// top   
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // left  
+         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // right 
+         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top   
     };
 
     unsigned int VBO, VAO;
@@ -85,6 +91,7 @@ int main()
 
     // render loop
     // -----------
+    double i = 0;
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -95,17 +102,24 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+       
+        vec3 scale = { 1,0.2,0 };
+        glm_rotate(trans, 0.0001, scale);
+
         // draw our first triangle
         glUseProgram(shaderProgram);
+        unsigned int transform_loc = glGetUniformLocation(shaderProgram, "transform");
+        glUniformMatrix4fv(transform_loc, 1, GL_FALSE, trans);
+
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // glBindVertexArray(0); // no need to unbind it every time 
-
+        
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        i += 0.001;
     }
 
     // optional: de-allocate all resources once they've outlived their purpose:

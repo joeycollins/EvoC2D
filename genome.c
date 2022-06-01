@@ -88,7 +88,7 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 
 	int possible_second_count = 0;
 	struct gene** possible_second_genes = calloc(total_count, sizeof(struct gene*));
-
+	
 	for (int i = 0; i < total_count; i++) {
 		struct gene* gene;
 		if (i < inputs_count) {
