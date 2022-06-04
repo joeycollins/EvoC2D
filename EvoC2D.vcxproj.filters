@@ -39,6 +39,9 @@
     <ClCompile Include="creature.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="multilayerperceptron.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="innovation.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="multilayerperceptron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -148,6 +148,7 @@
     <ClCompile Include="genome.c" />
     <ClCompile Include="innovation.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="multilayerperceptron.c" />
     <ClCompile Include="sequence.c" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,7 @@
     <ClInclude Include="gene.h" />
     <ClInclude Include="genome.h" />
     <ClInclude Include="innovation.h" />
+    <ClInclude Include="multilayerperceptron.h" />
     <ClInclude Include="sequence.h" />
     <ClInclude Include="shapes.h" />
   </ItemGroup>

@@ -2,20 +2,16 @@
 #define CREATURE_H
 
 #include "component.h"
+#include "multilayerperceptron.h"
+#include <stdbool.h>
 
-#define MAX_INPUTS 16
-#define MAX_OUTPUTS 16
+#define INITIAL_IO_CAPACITY 10
 
 struct creature {
 	char name[16];
-	int input2_count;
-	struct input_component_v2 inputs2[MAX_INPUTS];
-	int input3_count;
-	struct input_component_v3 inputs3[MAX_INPUTS];
-	int output2_count;
-	struct output_component_v2 outputs2[MAX_OUTPUTS];
-	int output3_count;
-	struct output_component_v3 outputs3[MAX_OUTPUTS];
+	struct component_sequence inputs;
+	struct component_sequence outputs;
+	struct component* origin; //growth origin
 };
 
 struct creature_context {
@@ -23,6 +19,8 @@ struct creature_context {
 	int alive_count;
 	struct creature* alive_creatures; 
 };
+
+struct creature create_creature(struct component origin_component);
 
 void update_creature(struct creature* creature);
 

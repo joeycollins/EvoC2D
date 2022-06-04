@@ -4,6 +4,7 @@
 #include "gene.h"
 #include "connection.h"
 #include "innovation.h"
+#include "creature.h"
 #include <stdbool.h>
 
 #define INITIAL_CONNECTION_CAPACITY 1000
@@ -18,7 +19,7 @@ struct genome {
 };
 
 
-struct genome get_new_genome(unsigned int inputs, unsigned int outputs);
+struct genome get_new_genome(struct creature* creature);
 
 void free_genome(struct genome* genome);
 

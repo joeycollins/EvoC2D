@@ -2,7 +2,10 @@
 #include "sequence.h"
 #include <stdlib.h>
 
-struct genome get_new_genome(unsigned int inputs, unsigned int outputs) {
+struct genome get_new_genome(struct creature* creature) {
+	int inputs = creature->inputs.count;
+	int outputs = creature->outputs.count;
+
 	struct genome new_genome = {
 		.connections = {
 			.count = 0,
@@ -34,7 +37,8 @@ struct genome get_new_genome(unsigned int inputs, unsigned int outputs) {
 	for (int i = 0; i < inputs; i++) {
 		struct gene input_gene = {
 			.id = -1 - (i * 2),
-			.distance = 0
+			.distance = 0,
+			.component = &creature->inputs.buffer[i]
 		};
 
 		sequence_add_gene(&new_genome.input_genes, input_gene);
@@ -44,7 +48,8 @@ struct genome get_new_genome(unsigned int inputs, unsigned int outputs) {
 	for (int i = 0; i < outputs; i++) {
 		struct gene output_gene = {
 			.id = -2 - (i * 2),
-			.distance = 1
+			.distance = 1,
+			.component = &creature->outputs.buffer[i]
 		};
 
 		sequence_add_gene(&new_genome.output_genes, output_gene);
@@ -172,7 +177,7 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context, 
 	srand(seed);
 	int splittable_count = 0;
 	struct connection** splittable_connections = calloc(genome->connections.count, sizeof(struct connection*));
-	for (int i = 0; i < genome->connections.count; i++) {
+	for (unsigned int i = 0; i < genome->connections.count; i++) {
 		if (!genome->connections.buffer[i].split && genome->connections.buffer[i].enabled) {
 			splittable_connections[splittable_count] = &genome->connections.buffer[i];
 		}
@@ -185,7 +190,8 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context, 
 	bool is_recurrent = connection_to_split->first_gene->distance > connection_to_split->second_gene->distance;
 	struct add_gene_innovation innovation = get_add_gene_innovation(context, connection_to_split->innovation_number);
 	struct gene new_gene = {
-		.id = connection_to_split->innovation_number
+		.id = connection_to_split->innovation_number,
+		.component = NULL
 	};
 
 	if (is_recurrent) {

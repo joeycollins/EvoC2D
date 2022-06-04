@@ -22,3 +22,4 @@ SEQUENCE_ADD(struct add_connection_innovation_sequence, struct add_connection_in
 SEQUENCE_ADD(struct add_gene_innovation_sequence, struct add_gene_innovation, gene_innovation)
 SEQUENCE_ADD(struct gene_sequence, struct gene, gene)
 SEQUENCE_ADD(struct connection_sequence, struct connection, connection)
+SEQUENCE_ADD(struct component_sequence, struct component, component)
