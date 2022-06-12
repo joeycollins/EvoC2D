@@ -42,6 +42,9 @@
     <ClCompile Include="multilayerperceptron.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shapes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="innovation.h">
@@ -76,10 +79,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vertexshader1.vs">
+    <None Include="vertexshader1.vsh">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="fragmentshader1.fs">
+    <None Include="fragmentshader1.fsh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="coloredvertexshader.vsh">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

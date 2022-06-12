@@ -5,6 +5,11 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 
+#define COMPONENT_RADIUS 0.1f
+#define MAX_CHILDREN 5
+#define GROWTH_RADIUS 1.0f
+#define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
+
 enum size {
 	V2,
 	V3
@@ -45,6 +50,8 @@ struct component {
 	float color[3];
 	enum component_type io_type;
 	union io_component io_component;
+    int children_count;
+	struct component* children[MAX_CHILDREN];
 };
 
 struct component_sequence {
@@ -53,6 +60,5 @@ struct component_sequence {
 	struct component* buffer;
 	unsigned int realloc_amt;
 };
-
 
 #endif

@@ -20,7 +20,7 @@ struct creature_context {
 	struct creature* alive_creatures; 
 };
 
-struct creature create_creature(struct component origin_component);
+struct creature create_creature(const char name[16], struct component origin_component);
 
 void update_creature(struct creature* creature);
 

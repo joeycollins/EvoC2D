@@ -150,6 +150,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="multilayerperceptron.c" />
     <ClCompile Include="sequence.c" />
+    <ClCompile Include="shapes.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="component.h" />
@@ -164,8 +165,13 @@
     <ClInclude Include="shapes.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragmentshader1.fs" />
-    <None Include="vertexshader1.vs" />
+    <None Include="fragmentshader1.fsh" />
+    <None Include="vertexshader1.vsh" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="coloredvertexshader.vsh">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

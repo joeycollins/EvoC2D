@@ -1,24 +1,17 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
-const float square_vertices[] = {
-	0.5f,  0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	-0.5f, -0.5f, 0.0f,
-	-0.5f,  0.5f, 0.0f
+struct shape {
+	float* vertices;
+	int vertices_count;
+	unsigned int* indices;
+	int indices_count;
 };
 
-const unsigned int square_indices[] = {
-	0, 1, 3,
-	1, 2, 3
-};
+struct shape create_creature_model(struct creature* creature);
 
-const float eq_triangle_vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.0f, 0.5f, 0.0f
-};
+struct shape create_component_model(struct component* component, float position_offset[2], float offset_angle);
 
-
+void free_shape(struct shape* shape);
 
 #endif
