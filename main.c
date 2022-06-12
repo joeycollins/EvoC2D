@@ -69,11 +69,19 @@ int main()
     };
 
     struct component comp = {
-        .children_count = 5,
+        .children_count = 1,
         .color = {0.2f, 0.9f, 0.0f}
     };
 
-    struct shape s = create_component_model(&comp, off, 0);
+    struct component comp2 = {
+        .children_count = 0,
+        .color = {0.7f, 0.0f, 1.0f}
+    };
+
+    comp.children[0] = &comp2;
+
+    struct creature creature = create_creature("molly", comp);
+    struct shape s = create_creature_model(&creature);
 
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);

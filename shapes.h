@@ -1,6 +1,8 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
+#include "creature.h"
+
 struct shape {
 	float* vertices;
 	int vertices_count;
@@ -9,8 +11,6 @@ struct shape {
 };
 
 struct shape create_creature_model(struct creature* creature);
-
-struct shape create_component_model(struct component* component, float position_offset[2], float offset_angle);
 
 void free_shape(struct shape* shape);
 

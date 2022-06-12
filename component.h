@@ -7,7 +7,7 @@
 
 #define COMPONENT_RADIUS 0.1f
 #define MAX_CHILDREN 5
-#define GROWTH_RADIUS 1.0f
+#define GROWTH_RADIUS 0.50f
 #define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
 
 enum size {
