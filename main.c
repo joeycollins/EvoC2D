@@ -74,11 +74,17 @@ int main()
     };
 
     struct component comp2 = {
+        .children_count = 1,
+        .color = {0.7f, 0.0f, 7.0f}
+    };
+
+    struct component comp3 = {
         .children_count = 0,
-        .color = {0.7f, 0.0f, 1.0f}
+        .color = {1.0f, 0.0f, 1.0f}
     };
 
     comp.children[0] = &comp2;
+    comp2.children[0] = &comp3;
 
     struct creature creature = create_creature("molly", comp);
     struct shape s = create_creature_model(&creature);

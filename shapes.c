@@ -42,7 +42,7 @@ void dfs_initialize(struct component* root, int* vertices_count, int* indices_co
 void dfs_build(struct shape* shape, struct component* component, float position_offset[2], float offset_angle) {
 	//create base polygon
 	unsigned int initial_vertex_idx = shape->vertices_count / 6;
-	for (unsigned int i = 0; i < MAX_CHILDREN; i++) {
+	for (int i = 0; i < MAX_CHILDREN; i++) {
 		float x = COMPONENT_RADIUS * cos(i * GROWTH_ANGLE + offset_angle) + position_offset[0];
 		float y = COMPONENT_RADIUS * sin(i * GROWTH_ANGLE + offset_angle) + position_offset[1];
 		
@@ -64,23 +64,23 @@ void dfs_build(struct shape* shape, struct component* component, float position_
 		}
 	}
 
-	//add connector vertices; small extra overhead for ease of organizing indices
+	//add connector vertices; small extra overhead for ease of organizing indices (couldve added connectors in the polygon loop)
 	for (int i = 0; i < component->children_count; i++) {
 		float angle = i * GROWTH_ANGLE + offset_angle + GROWTH_ANGLE / 2;
 		float x = (COMPONENT_RADIUS + GROWTH_RADIUS) * cos(angle) + position_offset[0];
 		float y = (COMPONENT_RADIUS + GROWTH_RADIUS) * sin(angle) + position_offset[1];
 
 		float offset[2] = { x,y };
-		unsigned int true_idx = shape->vertices_count / 6;
+		unsigned int next_idx = shape->vertices_count / 6; //index of the first vertex of the next polygon
 		dfs_build(shape, component->children[i], offset, angle + M_PI);
 
-		shape->indices[shape->indices_count] = i;
-		shape->indices[shape->indices_count + 1] = true_idx;
+		shape->indices[shape->indices_count] = initial_vertex_idx + i;
+		shape->indices[shape->indices_count + 1] = next_idx;
 		if (i + 1 < MAX_CHILDREN) {
-			shape->indices[shape->indices_count + 2] = i + 1;
+			shape->indices[shape->indices_count + 2] = initial_vertex_idx + i + 1;
 		}
 		else {
-			shape->indices[shape->indices_count + 2] = 0;
+			shape->indices[shape->indices_count + 2] = initial_vertex_idx;
 		}
 		shape->indices_count += 3;
 

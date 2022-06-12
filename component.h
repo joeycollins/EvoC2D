@@ -6,7 +6,7 @@
 #include <cglm/mat4.h>
 
 #define COMPONENT_RADIUS 0.1f
-#define MAX_CHILDREN 5
+#define MAX_CHILDREN 7
 #define GROWTH_RADIUS 0.50f
 #define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
 
