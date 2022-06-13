@@ -65,8 +65,7 @@ void free_genome(struct genome* genome) {
 	free(genome->hidden_genes.buffer);
 }
 
-void mutate_add_connection(struct genome* genome, struct innovation_context* context, bool allow_recurrent, unsigned int seed) {
-	srand(seed);
+void mutate_add_connection(struct genome* genome, struct innovation_context* context, bool allow_recurrent) {
 	int inputs_count = genome->input_genes.count;
 	int hidden_count = genome->hidden_genes.count;
 	int output_count = genome->output_genes.count;
@@ -168,13 +167,13 @@ void push_genes(struct connection* connections, int connection_count, int origin
 	}
 }
 
-void mutate_add_gene(struct genome* genome, struct innovation_context* context, unsigned int seed) {
+void mutate_add_gene(struct genome* genome, struct innovation_context* context) {
 	if (genome->connections.count == 0) { return; }
 	int inputs_count = genome->input_genes.count;
 	int hidden_count = genome->hidden_genes.count;
 	int output_count = genome->output_genes.count;
 	int total_count = inputs_count + hidden_count + output_count;
-	srand(seed);
+
 	int splittable_count = 0;
 	struct connection** splittable_connections = calloc(genome->connections.count, sizeof(struct connection*));
 	for (unsigned int i = 0; i < genome->connections.count; i++) {

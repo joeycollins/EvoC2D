@@ -9,7 +9,6 @@ struct food {
 	mat4 transform;
 	float energy;
 	bool alive;
-	struct shape shape;
 };
 
 struct food_context {
@@ -17,6 +16,7 @@ struct food_context {
 	int capacity;
 	int cooldown;
 	int food_count;
+	struct shape shape;
 	struct food* food;
 };
 

@@ -5,6 +5,7 @@
 #include <cglm/cglm.h>
 #include <cglm/vec3.h>
 #include <stdio.h>
+#include "food.h"
 #include "evoshader.h"
 #include "shapes.h"
 #include "component.h"
@@ -18,6 +19,7 @@ const unsigned int SCR_HEIGHT = 800;
 
 int main()
 {
+    srand(time(NULL));
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -90,6 +92,9 @@ int main()
 
     struct renderer render1 = create_renderer(&s, shaderProgram);
 
+    struct food_context food1 = create_food_context(30, 0.9f);
+    struct renderer food_rend = create_renderer(&food1.shape, shaderProgram);
+
     mat4 trans;
     glm_mat4_identity(trans);
 
@@ -106,6 +111,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
       
         render(&trans, &render1);
+        for (int i = 0; i < food1.capacity; i++) {
+            render(&food1.food[i].transform, &food_rend);
+        }
         
         glfwSwapBuffers(window);
         glfwPollEvents();

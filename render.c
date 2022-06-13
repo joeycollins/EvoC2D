@@ -8,7 +8,12 @@ void render(mat4* transform, struct renderer* renderer) {
     unsigned int transform_loc = glGetUniformLocation(renderer->shader, "transform");
     glUniformMatrix4fv(transform_loc, 1, GL_FALSE, transform);
     glBindVertexArray(renderer->VAO);
-    glDrawElements(GL_TRIANGLES, renderer->indices_count, GL_UNSIGNED_INT, 0);
+    if (renderer->indices_count > 0) {
+        glDrawElements(GL_TRIANGLES, renderer->indices_count, GL_UNSIGNED_INT, 0);
+    }
+    else {
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+    }
     glBindVertexArray(0);
 }
 

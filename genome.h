@@ -23,8 +23,8 @@ struct genome get_new_genome(struct creature* creature);
 
 void free_genome(struct genome* genome);
 
-void mutate_add_connection(struct genome* genome, struct innovation_context* context, bool allow_recurrent, unsigned int seed);
+void mutate_add_connection(struct genome* genome, struct innovation_context* context, bool allow_recurrent);
 
-void mutate_add_gene(struct genome* genome, struct innovation_context* context, unsigned int seed);
+void mutate_add_gene(struct genome* genome, struct innovation_context* context);
 
 #endif
