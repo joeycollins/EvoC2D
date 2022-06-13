@@ -8,6 +8,7 @@
 #include "evoshader.h"
 #include "shapes.h"
 #include "component.h"
+#include "render.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -47,34 +48,16 @@ int main()
         printf("Failed to initialize GLAD");
         return -1;
     }
-    mat4 trans;
-    vec3 rotation = { 0,0,1 };
-    glm_mat4_identity(&trans);
-    //glm_rotate(trans, 90, rotation);
-    //glm_scale(trans, scale);
-
-    printf(trans);
 
     unsigned int shaderProgram = build_shader("coloredvertexshader.vsh", "fragmentshader1.fsh");
     
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // left  
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top   
-    };
-    float off[] = {
-        0.2f, 0.0f
-    };
-
     struct component comp = {
         .children_count = 1,
         .color = {0.2f, 0.9f, 0.0f}
     };
 
     struct component comp2 = {
-        .children_count = 1,
+        .children_count = 3,
         .color = {0.7f, 0.0f, 7.0f}
     };
 
@@ -83,70 +66,46 @@ int main()
         .color = {1.0f, 0.0f, 1.0f}
     };
 
+    struct component comp4 = {
+        .children_count = 0,
+        .color = {0.0f, 0.3f, 1.0f}
+    };
+
+    struct component comp5 = {
+        .children_count = 0,
+        .color = {1.0f, 0.0f, 0.0f}
+    };
+
     comp.children[0] = &comp2;
     comp2.children[0] = &comp3;
+    comp2.children[1] = &comp4;
+    comp2.children[2] = &comp5;
 
     struct creature creature = create_creature("molly", comp);
-    struct shape s = create_creature_model(&creature);
+    struct shape s = create_creature_model(&creature, true);
 
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    struct renderer render1 = create_creature_renderer(&s, shaderProgram);
 
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * s.vertices_count, s.vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * s.indices_count, s.indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    double i = 0;
+    free_shape(&s);
+    float delta_time = 0.0f, last_time = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
-        // input
-        // -----
+        float current_time = (float)glfwGetTime();
+        delta_time = current_time - last_time;
+        last_time = current_time;
+
         processInput(window);
-
-        // render
-        // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-       
-        vec3 scale = { 1,0.2,0 };
-        glm_rotate(trans, 0.0001, scale);
-
-        glUseProgram(shaderProgram);
-        unsigned int transform_loc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transform_loc, 1, GL_FALSE, trans);
-
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawElements(GL_TRIANGLES, s.indices_count, GL_UNSIGNED_INT, 0);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0); // no need to unbind it every time 
+      
+        (*render1.draw)(&render1);
         
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
-        i += 0.001;
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    delete_renderer(&render1);
     glDeleteProgram(shaderProgram);
-
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }

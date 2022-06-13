@@ -11,6 +11,7 @@
 #define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
 
 enum size {
+	V1,
 	V2,
 	V3
 };
@@ -26,8 +27,9 @@ union gatherer {
 };
 
 union actualizer {
-	void (*actualize_v2)(vec2);
-	void (*actualize_v3)(vec3);
+	void (*actualize_v1)(struct component*, float);
+	void (*actualize_v2)(struct component*, vec2);
+	void (*actualize_v3)(struct component*, vec3);
 };
 
 struct input_component {
@@ -48,6 +50,7 @@ union io_component {
 struct component {
 	char name[16];
 	float color[3];
+	vec3 local_position;
 	enum component_type io_type;
 	union io_component io_component;
     int children_count;

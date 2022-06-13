@@ -143,24 +143,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Downloads\src\glad.c" />
+    <ClCompile Include="actualizer.c" />
     <ClCompile Include="creature.c" />
     <ClCompile Include="evoshader.c" />
+    <ClCompile Include="food.c" />
     <ClCompile Include="genome.c" />
     <ClCompile Include="innovation.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="multilayerperceptron.c" />
+    <ClCompile Include="render.c" />
     <ClCompile Include="sequence.c" />
     <ClCompile Include="shapes.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="actualizer.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="creature.h" />
     <ClInclude Include="evoshader.h" />
+    <ClInclude Include="food.h" />
     <ClInclude Include="gene.h" />
     <ClInclude Include="genome.h" />
     <ClInclude Include="innovation.h" />
     <ClInclude Include="multilayerperceptron.h" />
+    <ClInclude Include="render.h" />
     <ClInclude Include="sequence.h" />
     <ClInclude Include="shapes.h" />
   </ItemGroup>

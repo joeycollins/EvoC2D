@@ -19,7 +19,7 @@ unsigned int build_shader(const char* vertex_shader_path, const char* fragment_s
 
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vertex_shader_program, NULL);
-	free(vertex_shader_program);
+	free((char*)vertex_shader_program);
 	glCompileShader(vertex);
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -28,7 +28,7 @@ unsigned int build_shader(const char* vertex_shader_path, const char* fragment_s
 
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &frag_shader_program, NULL);
-	free(frag_shader_program);
+	free((char*)frag_shader_program);
 	glCompileShader(fragment);
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -58,19 +58,21 @@ const char* read_file(const char* path) {
 		fseek(file, 0, SEEK_END);
 		long file_size = ftell(file);
 		fseek(file, 0, SEEK_SET);
-		char* buffer = malloc((file_size + 1) * sizeof(char));
+		long allocate_amt = file_size + 1;
+		char* buffer = malloc((allocate_amt) * sizeof(char));
 		if (buffer == 0) {
 			free(buffer);
 			fclose(file);
 			return NULL;
 		}
-		int r = fread(buffer, 1, file_size, file);
+		size_t r = fread(buffer, 1, file_size, file);
 		buffer[r] = '\0';
 		fclose(file);
 		return buffer;
 	}
 	else {
-		fprintf("Shader file, %s, could not be opened\n", path);
+		printf("Shader file, %s, could not be opened\n", path);
+		perror("");
 	}
 	return NULL;
 }
@@ -93,7 +95,7 @@ void set_uniform_float(unsigned int id, const char* uniform_name, float value) {
 
 void set_vec2(unsigned int id, const char* uniform_name, const vec2* value)
 {
-	glUniform2fv(glGetUniformLocation(id, uniform_name), 1, &value[0]);
+	glUniform2fv(glGetUniformLocation(id, uniform_name), 1, value[0]);
 }
 
 void set_vec2_f(unsigned int id, const char* uniform_name, float x, float y)
@@ -103,7 +105,7 @@ void set_vec2_f(unsigned int id, const char* uniform_name, float x, float y)
 
 void set_vec3(unsigned int id, const char* uniform_name, const vec3* value)
 {
-	glUniform3fv(glGetUniformLocation(id, uniform_name), 1, &value[0]);
+	glUniform3fv(glGetUniformLocation(id, uniform_name), 1, value[0]);
 }
 
 void set_vec3_f(unsigned int id, const char* uniform_name, float x, float y, float z)
@@ -113,7 +115,7 @@ void set_vec3_f(unsigned int id, const char* uniform_name, float x, float y, flo
 
 void set_vec4(unsigned int id, const char* uniform_name, const vec4* value)
 {
-	glUniform4fv(glGetUniformLocation(id, uniform_name), 1, &value[0]);
+	glUniform4fv(glGetUniformLocation(id, uniform_name), 1, value[0]);
 }
 
 void set_vec4_f(unsigned int id, const char* uniform_name, float x, float y, float z, float w)
@@ -123,15 +125,15 @@ void set_vec4_f(unsigned int id, const char* uniform_name, float x, float y, flo
 
 void set_mat2(unsigned int id, const char* uniform_name, const mat2* mat)
 {
-	glUniformMatrix2fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, &mat[0][0]);
+	glUniformMatrix2fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat[0][0]);
 }
 
 void set_mat3(unsigned int id, const char* uniform_name, const mat3* mat)
 {
-	glUniformMatrix3fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, &mat[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat[0][0]);
 }
 
 void set_mat4(unsigned int id, const char* uniform_name, const mat4* mat)
 {
-	glUniformMatrix4fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, &mat[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat[0][0]); //indices?
 }

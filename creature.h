@@ -4,11 +4,13 @@
 #include "component.h"
 #include "multilayerperceptron.h"
 #include <stdbool.h>
+#include <cglm/mat4.h>
 
 #define INITIAL_IO_CAPACITY 10
 
 struct creature {
-	char name[16];
+	const char name[16];
+	mat4 transform;
 	struct component_sequence inputs;
 	struct component_sequence outputs;
 	struct component* origin; //growth origin

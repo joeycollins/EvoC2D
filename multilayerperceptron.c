@@ -16,7 +16,7 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 	struct input_call_link* input_current = NULL;
 	int input_vector_size = 0;
 
-	for (int i = 0; i < genome->input_genes.count; i++) {
+	for (unsigned int i = 0; i < genome->input_genes.count; i++) {
 		enum size input_size = genome->input_genes.buffer[i].component->io_component.input.size;
 		switch (input_size) {
 		case V2:
