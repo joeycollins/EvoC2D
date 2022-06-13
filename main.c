@@ -49,8 +49,12 @@ int main()
         return -1;
     }
 
+    mat4 ortho;
+    glm_ortho(0.0f, SCR_WIDTH, SCR_HEIGHT, 0.0f, -1.0f, 1.0f, ortho);
+
     unsigned int shaderProgram = build_shader("coloredvertexshader.vsh", "fragmentshader1.fsh");
-    
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, ortho);
+
     struct component comp = {
         .children_count = 1,
         .color = {0.2f, 0.9f, 0.0f}
@@ -84,7 +88,10 @@ int main()
     struct creature creature = create_creature("molly", comp);
     struct shape s = create_creature_model(&creature, true);
 
-    struct renderer render1 = create_creature_renderer(&s, shaderProgram);
+    struct renderer render1 = create_renderer(&s, shaderProgram);
+
+    mat4 trans;
+    glm_mat4_identity(trans);
 
     free_shape(&s);
     float delta_time = 0.0f, last_time = 0.0f;
@@ -98,7 +105,7 @@ int main()
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
       
-        (*render1.draw)(&render1);
+        render(&trans, &render1);
         
         glfwSwapBuffers(window);
         glfwPollEvents();

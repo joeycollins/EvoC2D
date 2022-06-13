@@ -14,6 +14,8 @@ struct shape {
 
 struct shape create_creature_model(struct creature* creature, bool decay_growth);
 
+struct shape create_food_model();
+
 void free_shape(struct shape* shape);
 
 #endif

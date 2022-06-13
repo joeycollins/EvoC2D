@@ -9,6 +9,7 @@ struct food {
 	mat4 transform;
 	float energy;
 	bool alive;
+	struct shape shape;
 };
 
 struct food_context {

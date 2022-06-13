@@ -99,3 +99,21 @@ void free_shape(struct shape* shape) {
 	free(shape->vertices);
 	free(shape->indices);
 }
+
+struct shape create_food_model() {
+	struct shape food = {
+		.indices_count = 0,
+		.vertices_count = 18,
+		.vertices = malloc(sizeof(float) * 18)
+	};
+
+	float vertices[18] = { -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.2f,
+							0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.2f,
+							0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.2f };
+
+	for (int i = 0; i < 18; i++) {
+		food.vertices[i] = vertices[i];
+	}
+
+	return food;
+}

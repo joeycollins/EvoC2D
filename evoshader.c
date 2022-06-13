@@ -125,15 +125,15 @@ void set_vec4_f(unsigned int id, const char* uniform_name, float x, float y, flo
 
 void set_mat2(unsigned int id, const char* uniform_name, const mat2* mat)
 {
-	glUniformMatrix2fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat[0][0]);
+	glUniformMatrix2fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat);
 }
 
 void set_mat3(unsigned int id, const char* uniform_name, const mat3* mat)
 {
-	glUniformMatrix3fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat);
 }
 
 void set_mat4(unsigned int id, const char* uniform_name, const mat4* mat)
 {
-	glUniformMatrix4fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat[0][0]); //indices?
+	glUniformMatrix4fv(glGetUniformLocation(id, uniform_name), 1, GL_FALSE, mat); 
 }

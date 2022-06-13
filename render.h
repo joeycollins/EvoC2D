@@ -2,6 +2,7 @@
 #define RENDER_H
 
 #include "shapes.h"
+#include <cglm/mat4.h>
 
 struct renderer {
 	unsigned int shader;
@@ -9,10 +10,11 @@ struct renderer {
 	unsigned int EBO;
 	unsigned int VBO;
 	int indices_count;
-	void (*draw)(struct renderer*);
 };
 
-struct renderer create_creature_renderer(struct shape* shape, unsigned int shader);
+void render(mat4* transform, struct renderer* renderer);
+
+struct renderer create_renderer(struct shape* shape, unsigned int shader);
 
 void delete_renderer(struct renderer* renderer);
 #endif
