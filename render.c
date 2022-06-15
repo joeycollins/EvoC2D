@@ -3,10 +3,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void render(mat4* transform, struct renderer* renderer) {
+void render(mat4* transform, struct renderer* renderer, mat4 view) {
     glUseProgram(renderer->shader);
-    unsigned int transform_loc = glGetUniformLocation(renderer->shader, "transform");
-    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, transform);
+    unsigned int uniform_loc = glGetUniformLocation(renderer->shader, "transform");
+    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, transform);
+    uniform_loc = glGetUniformLocation(renderer->shader, "view");
+    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, view);
     glBindVertexArray(renderer->VAO);
     if (renderer->indices_count > 0) {
         glDrawElements(GL_TRIANGLES, renderer->indices_count, GL_UNSIGNED_INT, 0);

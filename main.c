@@ -1,21 +1,24 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <cglm/mat4.h>
 #include <cglm/cglm.h>
-#include <cglm/vec3.h>
 #include <stdio.h>
 #include "food.h"
 #include "evoshader.h"
 #include "shapes.h"
 #include "component.h"
 #include "render.h"
+#include "camera.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 const unsigned int SCR_WIDTH = 1200;
 const unsigned int SCR_HEIGHT = 800;
+
+float delta_time = 0.0f, last_time = 0.0f;
+
+struct camera main_camera;
 
 int main()
 {
@@ -34,6 +37,7 @@ int main()
     // glfw window creation
     // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "EvoC2D", NULL, NULL);
+
     if (window == NULL)
     {
         printf("Failed to create GLFW window");
@@ -51,11 +55,14 @@ int main()
         return -1;
     }
 
+    create_camera(&main_camera, SCR_WIDTH, SCR_HEIGHT);
+
     mat4 ortho;
     glm_ortho(0.0f, SCR_WIDTH, SCR_HEIGHT, 0.0f, -1.0f, 1.0f, ortho);
-
+    
     unsigned int shaderProgram = build_shader("coloredvertexshader.vsh", "fragmentshader1.fsh");
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, ortho);
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, ortho); //set otho uniform in shader
 
     struct component comp = {
         .children_count = 1,
@@ -92,14 +99,14 @@ int main()
 
     struct renderer render1 = create_renderer(&s, shaderProgram);
 
-    struct food_context food1 = create_food_context(30, 0.9f);
+    struct food_context food1 = create_food_context(100, 1200);
     struct renderer food_rend = create_renderer(&food1.shape, shaderProgram);
 
     mat4 trans;
     glm_mat4_identity(trans);
 
     free_shape(&s);
-    float delta_time = 0.0f, last_time = 0.0f;
+    
     while (!glfwWindowShouldClose(window))
     {
         float current_time = (float)glfwGetTime();
@@ -109,10 +116,17 @@ int main()
         processInput(window);
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-      
-        render(&trans, &render1);
+        vec3 center;
+        mat4 view;
+        glm_vec3_add(main_camera.position, main_camera.front, center);
+        glm_lookat(main_camera.position, center, main_camera.up, view);
+
+       
+
+        render(&trans, &render1, view);
+
         for (int i = 0; i < food1.capacity; i++) {
-            render(&food1.food[i].transform, &food_rend);
+            render(&food1.food[i].transform, &food_rend, view);
         }
         
         glfwSwapBuffers(window);
@@ -131,6 +145,28 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, 1);
+
+    float speed = (float)(100 * delta_time);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        vec3 up = { 0.0f, -1.0f, 0.0f };
+        glm_vec3_scale(up, speed, up);
+        glm_vec3_add(main_camera.position, up, main_camera.position);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        vec3 down = { 0.0f, 1.0f, 0.0f };
+        glm_vec3_scale(down, speed, down);
+        glm_vec3_add(main_camera.position, down, main_camera.position);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        vec3 left = { -1.0f, 0.0f, 0.0f };
+        glm_vec3_scale(left, speed, left);
+        glm_vec3_add(main_camera.position, left, main_camera.position);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        vec3 right = { 1.0f, 0.0f, 0.0f };
+        glm_vec3_scale(right, speed, right);
+        glm_vec3_add(main_camera.position, right, main_camera.position);
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

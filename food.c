@@ -23,7 +23,7 @@ struct food_context create_food_context(int count, float radius) {
 		random_num = rand();
 		float y = (float)(random_num / RAND_MAX * radius * sin(r));
 		vec3 translation = { x, y , 0.0f };
-		vec3 scale = { 0.1f, 0.1f, 1.0f };
+		vec3 scale = { 100.1f, 100.1f, 1.0f };
 		mat4 transform;
 		glm_mat4_identity(transform);
 		glm_translate(transform, translation);
