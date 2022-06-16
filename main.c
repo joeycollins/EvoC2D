@@ -22,7 +22,8 @@ struct camera main_camera;
 
 int main()
 {
-    srand(time(NULL));
+    srand(time(NULL)); //seed
+
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -55,7 +56,7 @@ int main()
         return -1;
     }
 
-    create_camera(&main_camera, SCR_WIDTH, SCR_HEIGHT);
+    create_camera(&main_camera, SCR_WIDTH, SCR_HEIGHT); //create the main camera
 
     mat4 ortho;
     glm_ortho(0.0f, SCR_WIDTH, SCR_HEIGHT, 0.0f, -1.0f, 1.0f, ortho);
@@ -104,8 +105,11 @@ int main()
 
     mat4 trans;
     glm_mat4_identity(trans);
+    vec3 scale = { 400, 400, 1.0f };
+    glm_scale(trans, scale);
 
     free_shape(&s);
+    free_shape(&food1.shape);
     
     while (!glfwWindowShouldClose(window))
     {
@@ -116,37 +120,40 @@ int main()
         processInput(window);
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        //calculate the camera view for the frame
         vec3 center;
         mat4 view;
         glm_vec3_add(main_camera.position, main_camera.front, center);
         glm_lookat(main_camera.position, center, main_camera.up, view);
 
+        //render models
        
-
-        render(&trans, &render1, view);
 
         for (int i = 0; i < food1.capacity; i++) {
             render(&food1.food[i].transform, &food_rend, view);
         }
+        
+        render(&trans, &render1, view);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     delete_renderer(&render1);
+    delete_renderer(&food1);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
+
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, 1);
 
-    float speed = (float)(100 * delta_time);
+    float speed = (float)(200 * delta_time);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 up = { 0.0f, -1.0f, 0.0f };
         glm_vec3_scale(up, speed, up);
