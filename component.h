@@ -1,6 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include "creature.h"
 #include <cglm/vec2.h>
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
@@ -9,6 +10,7 @@
 #define MAX_CHILDREN 7
 #define GROWTH_RADIUS 0.50f
 #define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
+
 
 enum size {
 	V1,
@@ -47,21 +49,22 @@ union io_component {
 	struct output_component output;
 };
 
+struct component_sequence {
+	unsigned int capacity;
+	unsigned int count;
+	struct component* buffer;
+	unsigned int realloc_amt;
+};
+
 struct component {
 	char name[16];
 	float color[3];
 	vec3 local_position;
 	enum component_type io_type;
 	union io_component io_component;
-    int children_count;
+	int children_count;
 	struct component* children[MAX_CHILDREN];
-};
-
-struct component_sequence {
-	unsigned int capacity;
-	unsigned int count;
-	struct component* buffer;
-	unsigned int realloc_amt;
+	struct creature* this_creature;
 };
 
 #endif

@@ -1,10 +1,11 @@
 #ifndef GENOME_H
 #define GENOME_H 
 
-#include "gene.h"
+
 #include "connection.h"
 #include "innovation.h"
 #include "creature.h"
+#include "gene.h"
 #include <stdbool.h>
 
 #define INITIAL_CONNECTION_CAPACITY 1000
@@ -15,9 +16,7 @@ struct genome {
 	struct gene_sequence hidden_genes;
 	struct gene_sequence output_genes;
 	struct connection_sequence connections;
-
 };
-
 
 struct genome get_new_genome(struct creature* creature);
 

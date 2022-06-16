@@ -11,7 +11,7 @@ struct input_call_link {
 };
 
 struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome) {
-
+	/*
 	struct input_call_link input_head;
 	struct input_call_link* input_current = NULL;
 	int input_vector_size = 0;
@@ -41,7 +41,7 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 			input_current = input_current->next;
 		}
 	}
-	
+	*/
 
 }
 

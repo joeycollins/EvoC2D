@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 struct genome get_new_genome(struct creature* creature) {
-	int inputs = creature->inputs.count;
-	int outputs = creature->outputs.count;
+	int inputs = creature->inputs->count;
+	int outputs = creature->outputs->count;
 
 	struct genome new_genome = {
 		.connections = {
@@ -38,7 +38,7 @@ struct genome get_new_genome(struct creature* creature) {
 		struct gene input_gene = {
 			.id = -1 - (i * 2),
 			.distance = 0,
-			.component = &creature->inputs.buffer[i]
+			.component = &creature->inputs->buffer[i]
 		};
 
 		sequence_add_gene(&new_genome.input_genes, input_gene);
@@ -49,7 +49,7 @@ struct genome get_new_genome(struct creature* creature) {
 		struct gene output_gene = {
 			.id = -2 - (i * 2),
 			.distance = 1,
-			.component = &creature->outputs.buffer[i]
+			.component = &creature->outputs->buffer[i]
 		};
 
 		sequence_add_gene(&new_genome.output_genes, output_gene);
@@ -92,7 +92,7 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 
 	int possible_second_count = 0;
 	struct gene** possible_second_genes = calloc(total_count, sizeof(struct gene*));
-	
+	if (possible_second_genes == NULL) { return;}
 	for (int i = 0; i < total_count; i++) {
 		struct gene* gene;
 		if (i < inputs_count) {
@@ -176,6 +176,7 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 
 	int splittable_count = 0;
 	struct connection** splittable_connections = calloc(genome->connections.count, sizeof(struct connection*));
+	if (splittable_connections == NULL) { return; }
 	for (unsigned int i = 0; i < genome->connections.count; i++) {
 		if (!genome->connections.buffer[i].split && genome->connections.buffer[i].enabled) {
 			splittable_connections[splittable_count] = &genome->connections.buffer[i];

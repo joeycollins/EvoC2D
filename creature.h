@@ -2,17 +2,16 @@
 #define CREATURE_H
 
 #include "component.h"
-#include "multilayerperceptron.h"
 #include <stdbool.h>
 #include <cglm/mat4.h>
 
 #define INITIAL_IO_CAPACITY 10
 
 struct creature {
-	const char name[16];
+	char name[16];
 	mat4 transform;
-	struct component_sequence inputs;
-	struct component_sequence outputs;
+	struct component_sequence* inputs;
+	struct component_sequence* outputs;
 	struct component* origin; //growth origin
 };
 

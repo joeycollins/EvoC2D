@@ -15,6 +15,7 @@ void food_sensor(vec2* position, struct creature* creature, struct food_context*
 
 mat4* get_closest_food_transform(struct food_context* context, mat4* this_transform) {
 	mat4** closest = malloc(sizeof(mat4*));
+	if (closest == NULL) { return NULL; }
 	float dist = FLT_MAX;
 	float this_x = *this_transform[3][0];
 	float this_y = *this_transform[3][1];
@@ -24,7 +25,7 @@ mat4* get_closest_food_transform(struct food_context* context, mat4* this_transf
 		float sqrMag = (delta_x * delta_x) + (delta_y * delta_y);
 		if (sqrMag < dist) {
 			dist = sqrMag;
-			closest = &context->food[i];
+			closest[0] = &context->food[i].transform;
 		}
 	}
 	mat4* result;
