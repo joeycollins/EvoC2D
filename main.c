@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 #include <stdio.h>
+#include <time.h>
 #include "food.h"
 #include "evoshader.h"
 #include "shapes.h"
@@ -22,7 +23,7 @@ struct camera main_camera;
 
 int main()
 {
-    srand(time(NULL)); //seed
+    srand((unsigned int)time(NULL)); //seed
 
     // glfw: initialize and configure
     // ------------------------------
@@ -59,11 +60,11 @@ int main()
     create_camera(&main_camera, SCR_WIDTH, SCR_HEIGHT); //create the main camera
 
     mat4 ortho;
-    glm_ortho(0.0f, SCR_WIDTH, SCR_HEIGHT, 0.0f, -1.0f, 1.0f, ortho);
+    glm_ortho(0.0f, (float)SCR_WIDTH, (float)SCR_HEIGHT, 0.0f, -1.0f, 1.0f, ortho);
     
     unsigned int shaderProgram = build_shader("coloredvertexshader.vsh", "fragmentshader1.fsh");
     glUseProgram(shaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, ortho); //set otho uniform in shader
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, (GLfloat*)ortho); //set otho uniform in shader
 
     struct component comp = {
         .children_count = 1,
@@ -141,7 +142,7 @@ int main()
     }
 
     delete_renderer(&render1);
-    delete_renderer(&food1);
+    delete_renderer(&food_rend);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;

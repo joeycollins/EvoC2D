@@ -6,9 +6,9 @@
 void render(mat4* transform, struct renderer* renderer, mat4 view) {
     glUseProgram(renderer->shader);
     unsigned int uniform_loc = glGetUniformLocation(renderer->shader, "transform");
-    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, transform);
+    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat *)transform);
     uniform_loc = glGetUniformLocation(renderer->shader, "view");
-    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, view);
+    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)view);
     glBindVertexArray(renderer->VAO);
     if (renderer->indices_count > 0) {
         glDrawElements(GL_TRIANGLES, renderer->indices_count, GL_UNSIGNED_INT, 0);

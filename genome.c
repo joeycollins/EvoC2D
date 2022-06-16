@@ -126,7 +126,7 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 		.innovation_number = innovation.innovation_number,
 		.first_gene = first_gene,
 		.second_gene = second_gene,
-		.weight = rand() / RAND_MAX,
+		.weight = (float)rand() / RAND_MAX,
 		.enabled = true,
 		.split = false
 	};
@@ -230,7 +230,7 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 		.innovation_number = innovation.innovation_number_1,
 		.first_gene = new_gene_addr,
 		.second_gene = connection_to_split->second_gene,
-		.weight = rand() / RAND_MAX,
+		.weight = (float)rand() / RAND_MAX,
 		.split = false,
 		.enabled = true
 	};
