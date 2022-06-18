@@ -57,7 +57,6 @@ struct component_sequence {
 };
 
 struct component {
-	char name[16];
 	float color[3];
 	vec3 local_position;
 	enum component_type io_type;
@@ -66,5 +65,11 @@ struct component {
 	struct component* children[MAX_CHILDREN];
 	struct creature* this_creature;
 };
+
+struct component create_thruster_component(float r, float g, float b);
+
+struct component create_food_sensor_component(float r, float g, float b);
+
+struct component create_rotator_component(float r, float g, float b);
 
 #endif

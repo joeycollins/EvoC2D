@@ -145,6 +145,7 @@
     <ClCompile Include="..\..\..\Downloads\src\glad.c" />
     <ClCompile Include="actualizer.c" />
     <ClCompile Include="camera.c" />
+    <ClCompile Include="component.c" />
     <ClCompile Include="creature.c" />
     <ClCompile Include="evoshader.c" />
     <ClCompile Include="food.c" />

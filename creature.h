@@ -23,6 +23,7 @@ struct creature_context {
 
 struct creature create_creature(const char name[16], struct component origin_component);
 
-void update_creature(struct creature* creature);
+//Creates a simple creature with a food sensor and a thruster
+void create_simple_creature(struct creature* creature_base);
 
 #endif

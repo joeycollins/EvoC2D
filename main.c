@@ -6,6 +6,7 @@
 #include <time.h>
 #include "globals.h"
 #include "food.h"
+#include "innovation.h"
 #include "evoshader.h"
 #include "shapes.h"
 #include "component.h"
@@ -25,12 +26,14 @@ float delta_time = 0.0f, last_time = 0.0f;
 struct camera main_camera;
 
 struct food_context main_food_context;
+struct innovation_context main_innovation_context;
 
 int main()
 {
     srand((unsigned int)time(NULL)); //seed
     
     main_food_context = create_food_context(100, 1200);
+    main_innovation_context = get_new_innovation_context();
 
                                      // glfw: initialize and configure
     // ------------------------------
@@ -73,40 +76,15 @@ int main()
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, (GLfloat*)ortho); //set otho uniform in shader
 
-    struct component comp = {
-        .children_count = 1,
-        .color = {0.2f, 0.9f, 0.0f}
-    };
-
-    struct component comp2 = {
-        .children_count = 3,
-        .color = {0.7f, 0.0f, 7.0f}
-    };
-
-    struct component comp3 = {
-        .children_count = 0,
-        .color = {1.0f, 0.0f, 1.0f}
-    };
-
-    struct component comp4 = {
-        .children_count = 0,
-        .color = {0.0f, 0.3f, 1.0f}
-    };
-
-    struct component comp5 = {
-        .children_count = 0,
-        .color = {1.0f, 0.0f, 0.0f}
-    };
-
-    comp.children[0] = &comp2;
-    comp2.children[0] = &comp3;
-    comp2.children[1] = &comp4;
-    comp2.children[2] = &comp5;
-
-    struct creature creature = create_creature("molly", comp);
+   
+ 
+    struct creature creature;
+    create_simple_creature(&creature);
     struct shape s = create_creature_model(&creature, true);
 
     struct genome genome = get_new_genome(&creature);
+    mutate_add_connection(&genome, &main_innovation_context, false);
+    mutate_add_gene(&genome, &main_innovation_context); //fix
 
     struct renderer render1 = create_renderer(&s, shaderProgram);
 

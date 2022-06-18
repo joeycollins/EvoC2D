@@ -60,6 +60,9 @@
     <ClCompile Include="gatherer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="component.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="innovation.h">

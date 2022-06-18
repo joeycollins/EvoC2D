@@ -7,9 +7,9 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 
-void thruster(struct creature* creature, struct component* component, vec2 value);
+void thruster(struct component* component, vec2 value);
 
-void rotator(struct creature* creature, struct component* component, float value);
+void rotator(struct component* component, float value);
 
 
 #endif
