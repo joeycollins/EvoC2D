@@ -4,4 +4,6 @@
 #include "food.h"
 #include "component.h"
 
+void food_sensor(struct component* component, vec2* position);
+
 #endif

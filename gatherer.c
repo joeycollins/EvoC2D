@@ -1,10 +1,11 @@
 #include "gatherer.h"
+#include "globals.h"
 #include <cglm/mat4.h>
 
 mat4* get_closest_food_transform(struct food_context* context, mat4* this_transform);
 
-void food_sensor(vec2* position, struct creature* creature, struct food_context* context) {
-	mat4* closest_transform = get_closest_food_transform(context, &creature->transform);
+void food_sensor(struct component* component,vec2* position) {
+	mat4* closest_transform = get_closest_food_transform(&main_food_context, &component->this_creature->transform);
 	if (closest_transform == NULL) {
 		return;
 	}

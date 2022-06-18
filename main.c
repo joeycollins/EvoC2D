@@ -4,12 +4,15 @@
 #include <cglm/cglm.h>
 #include <stdio.h>
 #include <time.h>
+#include "globals.h"
 #include "food.h"
 #include "evoshader.h"
 #include "shapes.h"
 #include "component.h"
 #include "render.h"
 #include "camera.h"
+#include "genome.h"
+#include "multilayerperceptron.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -21,11 +24,15 @@ float delta_time = 0.0f, last_time = 0.0f;
 
 struct camera main_camera;
 
+struct food_context main_food_context;
+
 int main()
 {
     srand((unsigned int)time(NULL)); //seed
+    
+    main_food_context = create_food_context(100, 1200);
 
-    // glfw: initialize and configure
+                                     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -99,10 +106,11 @@ int main()
     struct creature creature = create_creature("molly", comp);
     struct shape s = create_creature_model(&creature, true);
 
+    struct genome genome = get_new_genome(&creature);
+
     struct renderer render1 = create_renderer(&s, shaderProgram);
 
-    struct food_context food1 = create_food_context(100, 1200);
-    struct renderer food_rend = create_renderer(&food1.shape, shaderProgram);
+    struct renderer food_rend = create_renderer(&main_food_context.shape, shaderProgram);
 
     mat4 trans;
     glm_mat4_identity(trans);
@@ -110,7 +118,7 @@ int main()
     glm_scale(trans, scale);
 
     free_shape(&s);
-    free_shape(&food1.shape);
+    free_shape(&main_food_context.shape);
     
     while (!glfwWindowShouldClose(window))
     {
@@ -131,8 +139,8 @@ int main()
         //render models
        
 
-        for (int i = 0; i < food1.capacity; i++) {
-            render(&food1.food[i].transform, &food_rend, view);
+        for (int i = 0; i < main_food_context.capacity; i++) {
+            render(&main_food_context.food[i].transform, &food_rend, view);
         }
         
         render(&trans, &render1, view);

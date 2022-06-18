@@ -168,6 +168,7 @@
     <ClInclude Include="gatherer.h" />
     <ClInclude Include="gene.h" />
     <ClInclude Include="genome.h" />
+    <ClInclude Include="globals.h" />
     <ClInclude Include="innovation.h" />
     <ClInclude Include="multilayerperceptron.h" />
     <ClInclude Include="render.h" />

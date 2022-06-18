@@ -24,8 +24,8 @@ enum component_type {
 };
 
 union gatherer {
-	void (*gather_v2)(vec2*);
-	void (*gather_v3)(vec3*);
+	void (*gather_v2)(struct component*, vec2*);
+	void (*gather_v3)(struct component*, vec3*);
 };
 
 union actualizer {

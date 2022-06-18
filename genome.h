@@ -12,6 +12,7 @@
 #define INITIAL_HIDDEN_CAPACITY 100
 
 struct genome {
+	int layers;
 	struct gene_sequence input_genes;
 	struct gene_sequence hidden_genes;
 	struct gene_sequence output_genes;
