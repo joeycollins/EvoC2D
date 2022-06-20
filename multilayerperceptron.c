@@ -4,6 +4,7 @@
 #include <cglm/vec2.h>
 #include <cglm/vec3.h>
 #include <stdlib.h>
+#include <cblas/cblas.h>
 
 int compare_ints(const void* a, const void* b);
 
@@ -15,6 +16,8 @@ Pretty expensive call; so use it correctly*/
 struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome) {
 	int network_matrices_count = 0;
 	struct network_matrix* network_matrices = malloc(sizeof(struct network_matrix) * (genome->layers - 1));
+	struct component** input_components = malloc(sizeof(struct component*) * genome->input_genes.count);
+	struct component** output_components = malloc(sizeof(struct component*) * genome->output_genes.count);
 
 	int input_vector_size = 0;
 	
@@ -27,6 +30,20 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 			input_vector_size += 3;
 			break;
 		}
+		input_components[i] = genome->input_genes.buffer[i].component;
+	}
+
+	int output_vector_size = 0;
+	for (int i = 0; i < genome->output_genes.count; i += 1) {
+		switch (genome->output_genes.buffer[i].component->io_component.output.size) {
+		case V2:
+			output_vector_size += 2;
+			break;
+		case V3:
+			output_vector_size += 3;
+			break;
+		}
+		output_components[i] = genome->output_genes.buffer[i].component;
 	}
 
 	int last_layer_size = input_vector_size;
@@ -63,10 +80,11 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 		
 		int layer_ids_count = 0;
 		int* layer_ids = malloc(sizeof(int) * layer_count);
-		if (layer_ids == NULL) { return; }
+		if (layer_ids == NULL) { continue; } //this wont happen
 		for (int j = 0; j < genome->hidden_genes.count; j++) { 
 			if (genome->hidden_genes.buffer[j].distance == i) {
 				layer_ids[layer_ids_count] = genome->hidden_genes.buffer[j].id;
+				layer_ids_count++;
 			}
 		}
 
@@ -77,29 +95,47 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 			.rows = last_layer_count
 		};
 
-		layer_matrix.buffer = malloc(sizeof(float*) * layer_matrix.columns);
-
+		int layer_matrix_count = 0;
+		float* matrix = malloc(sizeof(float*) * layer_matrix.columns * layer_matrix.rows);
+		/* column aligned
 		for (int j = 0; j < layer_ids_count; j++) { //each node has a column of the matrix
-			int weight_column_count = 0;
-			float* weight_column = malloc(sizeof(float) * last_layer_size);
 			for (int k = 0; k < last_layer_count; k++) {
 				bool found_connection = false;
 				for (int l = 0; l < genome->connections.count; l++) {
 					if (genome->connections.buffer[l].first_gene->id == last_layer_ids[k] &&
 						genome->connections.buffer[l].second_gene->id == layer_ids[j]) { //check that connection source and destination is correct
-						weight_column[weight_column_count] = genome->connections.buffer[l].weight;
+						matrix[layer_matrix_count] = genome->connections.buffer[l].enabled ? genome->connections.buffer[l].weight : 0.0f;
 						found_connection = true;
 						break;
 					}
 				}
 				if (!found_connection) {
-					weight_column[weight_column_count] = 0.0f;
+					matrix[layer_matrix_count] = 0.0f;
 				}
-				weight_column_count++;
+				layer_matrix_count++;
 			}
-			layer_matrix.buffer[j] = weight_column; //add the column to the matrix
+		}*/
+
+		//row aligned for blas sgemm
+		for (int j = 0; j < last_layer_count; j++) {
+			for (int k = 0; k < layer_ids_count; k++) {
+				bool found_connection = false;
+				for (int l = 0; l < genome->connections.count; l++) {
+					if (genome->connections.buffer[l].first_gene->id = last_layer_ids[j] &&
+						genome->connections.buffer[l].second_gene->id == layer_ids[k]) {
+						matrix[layer_matrix_count] = genome->connections.buffer[l].enabled ? genome->connections.buffer[l].weight : 0.0f;
+						found_connection = true;
+						break;
+					}
+					if (!found_connection) {
+						matrix[layer_matrix_count] = 0.0f;
+					}
+					layer_matrix_count++;
+				}
+			}
 		}
 
+		layer_matrix.buffer = matrix; //set the pointer
 		network_matrices[network_matrices_count] = layer_matrix;
 		network_matrices_count++;
 
@@ -113,7 +149,13 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 	struct multilayer_perceptron network = {
 		.matrices = network_matrices,
 		.matrices_count = network_matrices_count,
-		.input_vector_size = input_vector_size
+		.input_vector_size = input_vector_size,
+		.activation = &tanh,
+		.output_vector_size = output_vector_size,
+		.input_components = input_components,
+		.output_components = output_components,
+		.input_components_count = genome->input_genes.count,
+		.output_components_count = genome->output_genes.count
 	};
 
 	return network;
@@ -132,15 +174,53 @@ int compare_ints(const void* a, const void* b) {
 }
 
 void evaluate(struct multilayer_perceptron* network) {
-	return;
+	const float alpha = 1.0f, beta = 0.0f;
+	int last_columns = 0;
+	int last_rows = 1;
+	float* input_vector = malloc(network->input_vector_size * sizeof(float));
+	float** last_vector = &input_vector;
+	for (int i = 0; i < network->input_components_count; i++) {
+		switch (network->input_components[i]->io_component.input.size) {
+		case V2:
+		{
+			network->input_components[i]->io_component.input.gatherer.gather_v2(network->input_components[i], input_vector + last_columns);
+			last_columns += 2;
+			break;
+		}
+		case V3:
+		{
+			network->input_components[i]->io_component.input.gatherer.gather_v3(network->input_components[i], input_vector + last_columns);
+			last_columns += 3;
+			break;
+		}
+		}
+	}
+	
+
+	for (int i = 0; i < network->matrices_count; i++) {
+		float* result = calloc(last_columns * network->matrices[i].rows, sizeof(float));
+		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, last_rows, network->matrices[i].columns, last_columns, alpha, *last_vector,
+			network->matrices[i].rows, network->matrices[i].buffer, network->matrices[i].columns, beta, result, network->matrices[i].columns);
+		
+		free(*last_vector);
+		last_vector = &result;
+		last_columns = network->matrices[i].columns;		
+	}
+	
+	free(*last_vector);
+	
 }
 
 void free_multilayer_perceptron(struct multilayer_perceptron* network) {
 	for (int i = 0; i < network->matrices_count; i++) {
-		for (int j = 0; j < network->matrices[i].columns; j += 1) {
-			free(network->matrices[i].buffer[j]);
-		}
 		free(network->matrices[i].buffer);
 	}
 	free(network->matrices);
+	free(network->input_components); //dont free the component pointers
+	free(network->output_components);
+}
+
+void test() {
+	//cblas_sgemm() //dgemm for doubles
+
 }

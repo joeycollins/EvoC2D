@@ -30,7 +30,8 @@ struct genome get_new_genome(struct creature* creature) {
 			.capacity = outputs,
 			.buffer = calloc(outputs, sizeof(struct gene)),
 			.realloc_amt = outputs
-		}
+		},
+		.layers = 1
 	};
 
 	//input genes have negative odd ids
@@ -157,7 +158,7 @@ void push_genes(struct connection* connections, int connection_count, int origin
 	}
 	else {
 		for (int i = 0; i < connection_count; i++) {
-			if (connections[i].first_gene->id == origin_id && !contains_int(expanded_ids, *expanded_ids_count, origin_id)) {
+			if (connections[i].first_gene->id == origin_id && !contains_int(expanded_ids, *expanded_ids_count, connections[i].second_gene->id)) {
 				connections[i].second_gene->distance += 1;
 				expanded_ids[*expanded_ids_count] = connections[i].second_gene->id;
 				(*expanded_ids_count)++;
@@ -178,8 +179,9 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 	struct connection** splittable_connections = calloc(genome->connections.count, sizeof(struct connection*));
 	if (splittable_connections == NULL) { return; }
 	for (unsigned int i = 0; i < genome->connections.count; i++) {
-		if (!genome->connections.buffer[i].split && genome->connections.buffer[i].enabled) {
+		if (genome->connections.buffer[i].split == false && genome->connections.buffer[i].enabled) {
 			splittable_connections[splittable_count] = &genome->connections.buffer[i];
+			splittable_count++;
 		}
 	}
 	if (splittable_count == 0) { return; }
@@ -211,6 +213,7 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 			int expanded_count = 1;
 			push_genes(genome->connections.buffer, genome->connections.count, connection_to_split->first_gene->id, expanded, &expanded_count, is_recurrent);
 			free(expanded);
+			genome->layers++; //this could be wrong; havent tested, 
 		}
 		new_gene.distance = connection_to_split->first_gene->distance + 1;
 	}

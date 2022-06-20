@@ -86,6 +86,9 @@ int main()
     mutate_add_connection(&genome, &main_innovation_context, false);
     mutate_add_gene(&genome, &main_innovation_context); //fix
 
+    struct multilayer_perceptron network = create_multilayer_perceptron(&genome);
+    evaluate(&network);
+
     struct renderer render1 = create_renderer(&s, shaderProgram);
 
     struct renderer food_rend = create_renderer(&main_food_context.shape, shaderProgram);
