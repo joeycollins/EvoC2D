@@ -8,6 +8,7 @@ mat4* get_closest_food_transform(struct food_context* context, mat4* this_transf
 void food_sensor(struct component* component,vec2* position) {
 	mat4* closest_transform = get_closest_food_transform(&main_food_context, &component->this_creature->transform);
 	if (closest_transform == NULL) {
+		glm_vec2_zero(position);
 		return;
 	}
 	mat4 new_mat;
@@ -20,19 +21,21 @@ mat4* get_closest_food_transform(struct food_context* context, mat4* this_transf
 	mat4** closest = malloc(sizeof(mat4*));
 	if (closest == NULL) { return NULL; }
 	float dist = FLT_MAX;
-	float this_x = *this_transform[3][0];
-	float this_y = *this_transform[3][1];
+	mat4 new_mat;
+	glm_mat4_copy(*this_transform, new_mat);
+	float this_x = new_mat[3][0];
+	float this_y = new_mat[3][1];
 	for (int i = 0; i < context->food_count; i++) {
 		float delta_x = context->food[i].transform[3][0] - this_x;
 		float delta_y = context->food[i].transform[3][1] - this_y;
 		float sqrMag = (delta_x * delta_x) + (delta_y * delta_y);
 		if (sqrMag < dist) {
 			dist = sqrMag;
-			closest[0] = &context->food[i].transform;
+			*closest = &context->food[i].transform;
 		}
 	}
 	mat4* result;
-	if (closest != NULL) {
+	if (*closest != NULL) {
 		result = *closest;
 	}
 	else {

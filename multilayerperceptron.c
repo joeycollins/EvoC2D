@@ -6,13 +6,15 @@
 #include <stdlib.h>
 #include <cblas/cblas.h>
 
+//aligned malloc used for improved BLAS performance
+
 int compare_ints(const void* a, const void* b);
 
 /* Create a neural network using the provided genome. Network assumes a fully-connected network. Layers 
 with missing connections use 0 as the weight in the layer matrix. For each layer matrix, the weights are ordered in
 increasing source gene ID order. Hopefully we can use these matrices to increase performance using CUDA later.
-A new network should only be created once a creature spawns or a generation ends (or begins). 
-Pretty expensive call; so use it correctly*/
+A new network should only be created once a creature spawns or a generation begins. Pretty expensive call; so use 
+it correctly*/
 struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome) {
 	int network_matrices_count = 0;
 	struct network_matrix* network_matrices = malloc(sizeof(struct network_matrix) * (genome->layers - 1));
@@ -96,7 +98,8 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 		};
 
 		int layer_matrix_count = 0;
-		float* matrix = malloc(sizeof(float*) * layer_matrix.columns * layer_matrix.rows);
+		float* matrix = _aligned_malloc(sizeof(float*) * layer_matrix.columns * layer_matrix.rows, 64);
+		
 		/* column aligned
 		for (int j = 0; j < layer_ids_count; j++) { //each node has a column of the matrix
 			for (int k = 0; k < last_layer_count; k++) {
@@ -127,14 +130,13 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 						found_connection = true;
 						break;
 					}
-					if (!found_connection) {
-						matrix[layer_matrix_count] = 0.0f;
-					}
-					layer_matrix_count++;
 				}
+				if (!found_connection) { // there is no connection to layer_ids[k] from last_layer_ids[j]
+					matrix[layer_matrix_count] = 0.0f;
+				}
+				layer_matrix_count++;
 			}
 		}
-
 		layer_matrix.buffer = matrix; //set the pointer
 		network_matrices[network_matrices_count] = layer_matrix;
 		network_matrices_count++;
@@ -161,7 +163,7 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 	return network;
 }
 
-
+//compare for qsort
 int compare_ints(const void* a, const void* b) {
 	int* x = (int*)a;
 	int* y = (int*)b;
@@ -177,38 +179,71 @@ void evaluate(struct multilayer_perceptron* network) {
 	const float alpha = 1.0f, beta = 0.0f;
 	int last_columns = 0;
 	int last_rows = 1;
-	float* input_vector = malloc(network->input_vector_size * sizeof(float));
-	float** last_vector = &input_vector;
+	float* input_vector = _aligned_malloc(network->input_vector_size * sizeof(float), 64);
+	
 	for (int i = 0; i < network->input_components_count; i++) {
 		switch (network->input_components[i]->io_component.input.size) {
 		case V2:
 		{
-			network->input_components[i]->io_component.input.gatherer.gather_v2(network->input_components[i], input_vector + last_columns);
+			vec2 result;
+			network->input_components[i]->io_component.input.gatherer.gather_v2(network->input_components[i], &result);
+			input_vector[last_columns] = result[0];
+			input_vector[last_columns+1] = result[1];
 			last_columns += 2;
 			break;
 		}
 		case V3:
 		{
-			network->input_components[i]->io_component.input.gatherer.gather_v3(network->input_components[i], input_vector + last_columns);
+			vec3 result;
+			network->input_components[i]->io_component.input.gatherer.gather_v3(network->input_components[i], &result);
+			input_vector[last_columns] = result[0];
+			input_vector[last_columns + 1] = result[1];
+			input_vector[last_columns + 2] = result[2];
 			last_columns += 3;
 			break;
 		}
 		}
 	}
-	
+	float** last_vector = &input_vector;
 
 	for (int i = 0; i < network->matrices_count; i++) {
-		float* result = calloc(last_columns * network->matrices[i].rows, sizeof(float));
-		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, last_rows, network->matrices[i].columns, last_columns, alpha, *last_vector,
-			network->matrices[i].rows, network->matrices[i].buffer, network->matrices[i].columns, beta, result, network->matrices[i].columns);
-		
-		free(*last_vector);
+		float* result = _aligned_malloc(last_columns * network->matrices[i].rows *  sizeof(float), 64);
+		//memset(result, 0.0f, last_columns * network->matrices[i].rows);
+		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, last_rows, network->matrices[i].columns,
+			last_columns, alpha, *last_vector,network->matrices[i].rows, network->matrices[i].buffer,
+			network->matrices[i].columns, beta, result, network->matrices[i].columns);
+		_aligned_free(*last_vector);
+
+		for (int j = 0; j < network->matrices[i].columns; j++) { //apply activation
+			*(result + j) = network->activation(*(result+j));
+		}
+
 		last_vector = &result;
 		last_columns = network->matrices[i].columns;		
 	}
 	
-	free(*last_vector);
-	
+	int actualizer_idx = 0;
+	//do outputs
+	for (int i = 0; i < network->output_components_count; i++) {
+		switch (network->output_components[i]->io_component.output.size) {
+		case V2:
+		{
+			vec2 result = { (*last_vector)[actualizer_idx], (* last_vector)[actualizer_idx + 1]};
+			network->output_components[i]->io_component.output.actualizer.actualize_v2(network->output_components[i], &result);
+			actualizer_idx += 2;
+			break;
+		}
+		case V3:
+		{
+			vec3 result = { *last_vector[actualizer_idx], *last_vector[actualizer_idx + 1], *last_vector[actualizer_idx + 2] };
+			network->output_components[i]->io_component.output.actualizer.actualize_v2(network->output_components[i], &result);
+			actualizer_idx += 3;
+			break;
+		}
+		}
+	}
+
+	_aligned_free(*last_vector);
 }
 
 void free_multilayer_perceptron(struct multilayer_perceptron* network) {
@@ -218,9 +253,4 @@ void free_multilayer_perceptron(struct multilayer_perceptron* network) {
 	free(network->matrices);
 	free(network->input_components); //dont free the component pointers
 	free(network->output_components);
-}
-
-void test() {
-	//cblas_sgemm() //dgemm for doubles
-
 }

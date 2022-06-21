@@ -2,6 +2,8 @@
 #include "sequence.h"
 #include <stdlib.h>
 
+void mutate_add_gene_along(struct connection* connection, struct genome* genome, struct innovation_context* context);
+
 struct genome get_new_genome(struct creature* creature) {
 	int inputs = creature->inputs->count;
 	int outputs = creature->outputs->count;
@@ -78,8 +80,8 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 	else {
 		possible_first_count = inputs_count + hidden_count;
 	}
-
-	int first_choice = rand() % (possible_first_count);
+	int random = rand();
+	int first_choice = random % (possible_first_count);
 	struct gene* first_gene;
 	if (first_choice < inputs_count) {
 		first_gene = &genome->input_genes.buffer[first_choice];
@@ -92,7 +94,7 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 	}
 
 	int possible_second_count = 0;
-	struct gene** possible_second_genes = calloc(total_count, sizeof(struct gene*));
+	struct gene** possible_second_genes = malloc(total_count * sizeof(struct gene*));
 	if (possible_second_genes == NULL) { return;}
 	for (int i = 0; i < total_count; i++) {
 		struct gene* gene;
@@ -116,23 +118,30 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 		possible_second_count++;
 	}
 
-	
-	int second_choice = rand() % possible_second_count;
 	if (possible_second_count == 0) { return; }
+	random = rand();
+	int second_choice = random % possible_second_count;
 	struct gene* second_gene = possible_second_genes[second_choice];
 	free(possible_second_genes);
 
+	//add supp genes 
+	int supplamentary_genes = second_gene->distance - first_gene->distance - 1;
+	random = rand();
+	float connections_weight = ((float)random / RAND_MAX);
+	float along_weight = connections_weight / (supplamentary_genes + 1);
 	struct add_connection_innovation innovation = get_add_connection_innovation(context, first_gene->id, second_gene->id);
 	struct connection new_connection = {
 		.innovation_number = innovation.innovation_number,
 		.first_gene = first_gene,
 		.second_gene = second_gene,
-		.weight = (float)rand() / RAND_MAX,
+		.weight = connections_weight,
 		.enabled = true,
 		.split = false
 	};
 
-	sequence_add_connection(&genome->connections, new_connection);
+	struct connection* new_connection_addr = sequence_add_connection(&genome->connections, new_connection);
+
+	mutate_add_gene_along(new_connection_addr, genome, context, along_weight);
 }
 
 bool contains_int(int* sequence, int count, int element) {
@@ -185,7 +194,8 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 		}
 	}
 	if (splittable_count == 0) { return; }
-	struct connection* connection_to_split = splittable_connections[rand() % splittable_count];
+	int random = rand();
+	struct connection* connection_to_split = splittable_connections[random % splittable_count];
 	free(splittable_connections);
 	connection_to_split->enabled = false;
 	connection_to_split->split = true;
@@ -224,16 +234,17 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 		.innovation_number = innovation.innovation_number_1,
 		.first_gene = connection_to_split->first_gene,
 		.second_gene = new_gene_addr,
-		.weight = 1.0,
+		.weight = 1.0f,
 		.split = false,
 		.enabled = true
 	};
 
+	random = rand();
 	struct connection new_connection_2 = {
 		.innovation_number = innovation.innovation_number_1,
 		.first_gene = new_gene_addr,
 		.second_gene = connection_to_split->second_gene,
-		.weight = (float)rand() / RAND_MAX,
+		.weight = (float)random / RAND_MAX,
 		.split = false,
 		.enabled = true
 	};
@@ -241,3 +252,48 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 	sequence_add_connection(&genome->connections, new_connection_1);
 	sequence_add_connection(&genome->connections, new_connection_2);
 }
+
+struct connection* mutate_add_gene_at(struct connection* connection, struct genome* genome, struct innovation_context* context, float weight1, float weight2) {
+	connection->enabled = false;
+	connection->split = true;
+
+	struct add_gene_innovation innovation = get_add_gene_innovation(context, connection->innovation_number);
+	struct gene new_gene = {
+		.id = connection->innovation_number,
+		.distance = connection->first_gene->distance + 1,
+		.component = NULL
+	};
+
+	struct gene* new_gene_addr = sequence_add_gene(&genome->hidden_genes, new_gene);
+
+	struct connection new_connection_1 = {
+		.innovation_number = innovation.innovation_number_1,
+		.first_gene = connection->first_gene,
+		.second_gene = new_gene_addr,
+		.weight = weight1,
+		.split = false,
+		.enabled = true
+	};
+
+	struct connection new_connection_2 = {
+		.innovation_number = innovation.innovation_number_1,
+		.first_gene = new_gene_addr,
+		.second_gene = connection->second_gene,
+		.weight = weight2,
+		.split = false,
+		.enabled = true
+	};
+
+	sequence_add_connection(&genome->connections, new_connection_1);
+	struct connection* second_addr = sequence_add_connection(&genome->connections, new_connection_2);
+	return second_addr;
+}
+
+void mutate_add_gene_along(struct connection* connection, struct genome* genome, struct innovation_context* context, float weight) {
+	int nodes = connection->second_gene->distance - connection->first_gene->distance - 1;
+	for (int i = 0; i < nodes; i++) {
+		connection = mutate_add_gene_at(connection, genome, context, weight, weight);
+	}
+}
+
+
