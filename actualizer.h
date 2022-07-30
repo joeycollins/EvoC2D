@@ -7,9 +7,11 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 
-void thruster(struct component* component, vec2 value);
+extern float delta_time;
 
-void rotator(struct component* component, float value);
+void thruster(struct component* component, float* value);
+
+void rotator(struct component* component, float* value);
 
 
 #endif

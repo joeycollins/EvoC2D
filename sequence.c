@@ -3,7 +3,7 @@
 
 #define SEQUENCE_ADD(S, T, N) \
 	T* sequence_add_##N(S* sequence, T element){ \
-		if (sequence->count + 1 == sequence->capacity) { \
+		if (sequence->count + 1 > sequence->capacity) { \
 			sequence->capacity += sequence->realloc_amt; \
 			T* new_buffer = realloc(sequence->buffer, sequence->capacity * sizeof(T));\
 			if (new_buffer != NULL){ \

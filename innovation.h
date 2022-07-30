@@ -17,17 +17,17 @@ struct add_gene_innovation {
 };
 
 struct add_connection_innovation_sequence {
-	unsigned int capacity;
-	unsigned int count;
+	int capacity;
+	int count;
 	struct add_connection_innovation* buffer;
-	unsigned int realloc_amt;
+	int realloc_amt;
 };
 
 struct add_gene_innovation_sequence {
-	unsigned int capacity;
-	unsigned int count;
+	int capacity;
+	int count;
 	struct add_gene_innovation* buffer;
-	unsigned int realloc_amt;
+	int realloc_amt;
 };
 
 struct innovation_context {

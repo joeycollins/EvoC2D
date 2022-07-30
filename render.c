@@ -3,7 +3,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void render(mat4* transform, struct renderer* renderer, mat4 view) {
+extern mat4 view;
+
+void render(mat4* transform, struct renderer* renderer) {
     glUseProgram(renderer->shader);
     unsigned int uniform_loc = glGetUniformLocation(renderer->shader, "transform");
     glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat *)transform);
@@ -51,7 +53,7 @@ struct renderer create_renderer(struct shape* shape, unsigned int shader) {
     return this_renderer;
 }
 
-void delete_renderer(struct renderer* renderer) {
+void free_renderer(struct renderer* renderer) {
     glDeleteVertexArrays(1, &renderer->VAO);
     glDeleteBuffers(1, &renderer->VBO);
 }

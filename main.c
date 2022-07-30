@@ -9,19 +9,19 @@
 #include "innovation.h"
 #include "evoshader.h"
 #include "shapes.h"
-#include "component.h"
 #include "render.h"
 #include "camera.h"
-#include "genome.h"
-#include "multilayerperceptron.h"
+#include "organism.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-const unsigned int SCR_WIDTH = 1200;
-const unsigned int SCR_HEIGHT = 800;
+unsigned int SCR_WIDTH = 1800;
+unsigned int SCR_HEIGHT = 1200;
 
+float creature_scale_factor = 400.0f, food_scale_factor = 100.0f;
 float delta_time = 0.0f, last_time = 0.0f;
+mat4 view;
 
 struct camera main_camera;
 
@@ -32,7 +32,7 @@ int main()
 {
     srand((unsigned int)time(NULL)); //seed
     
-    main_food_context = create_food_context(100, 1200);
+    main_food_context = create_food_context(300, 3000, 20.0f);
     main_innovation_context = get_new_innovation_context();
 
                                      // glfw: initialize and configure
@@ -45,10 +45,15 @@ int main()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+    
+    GLFWmonitor* primary_monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primary_monitor);
+    SCR_WIDTH = mode->width;
+    SCR_HEIGHT = mode->height;
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "EvoC2D", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "EvoC2D", glfwGetPrimaryMonitor(), NULL);
 
     if (window == NULL)
     {
@@ -76,29 +81,12 @@ int main()
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, (GLfloat*)ortho); //set otho uniform in shader
 
-   
- 
-    struct creature creature;
-    create_simple_creature(&creature);
-    struct shape s = create_creature_model(&creature, true);
-
-    struct genome genome = get_new_genome(&creature);
-    mutate_add_connection(&genome, &main_innovation_context, false);
-    mutate_add_gene(&genome, &main_innovation_context); //fix
-
-    struct multilayer_perceptron network = create_multilayer_perceptron(&genome);
-    evaluate(&network);
-
-    struct renderer render1 = create_renderer(&s, shaderProgram);
-
     struct renderer food_rend = create_renderer(&main_food_context.shape, shaderProgram);
 
-    mat4 trans;
-    glm_mat4_identity(trans);
-    vec3 scale = { 400, 400, 1.0f };
-    glm_scale(trans, scale);
+    int culture_count = 100;
+    struct organism* culture = malloc(sizeof(struct organism) * culture_count);
+    create_culture(culture_count, &create_simple_creature, culture, shaderProgram);
 
-    free_shape(&s);
     free_shape(&main_food_context.shape);
     
     while (!glfwWindowShouldClose(window))
@@ -113,25 +101,22 @@ int main()
 
         //calculate the camera view for the frame
         vec3 center;
-        mat4 view;
         glm_vec3_add(main_camera.position, main_camera.front, center);
         glm_lookat(main_camera.position, center, main_camera.up, view);
 
-        //render models
-       
-
-        for (int i = 0; i < main_food_context.capacity; i++) {
-            render(&main_food_context.food[i].transform, &food_rend, view);
+        for (int i = 0; i < culture_count; i++) {
+            update_organism(culture + i, &tanhf, view);
         }
         
-        render(&trans, &render1, view);
-        
+        update_food_context(&main_food_context, &food_rend);
+      
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    delete_renderer(&render1);
-    delete_renderer(&food_rend);
+    for (int i = 0; i < culture_count; i++) {
+        free_organism(culture + i);
+    }
+    free_renderer(&food_rend);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;

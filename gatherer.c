@@ -5,7 +5,7 @@
 
 mat4* get_closest_food_transform(struct food_context* context, mat4* this_transform);
 
-void food_sensor(struct component* component,vec2* position) {
+void food_sensor(struct component* component,float* position) {
 	mat4* closest_transform = get_closest_food_transform(&main_food_context, &component->this_creature->transform);
 	if (closest_transform == NULL) {
 		glm_vec2_zero(position);
@@ -26,6 +26,7 @@ mat4* get_closest_food_transform(struct food_context* context, mat4* this_transf
 	float this_x = new_mat[3][0];
 	float this_y = new_mat[3][1];
 	for (int i = 0; i < context->food_count; i++) {
+		if (!context->food[i].alive) { continue; }
 		float delta_x = context->food[i].transform[3][0] - this_x;
 		float delta_y = context->food[i].transform[3][1] - this_y;
 		float sqrMag = (delta_x * delta_x) + (delta_y * delta_y);

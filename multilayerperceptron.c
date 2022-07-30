@@ -8,13 +8,14 @@
 
 //aligned malloc used for improved BLAS performance
 
-int compare_ints(const void* a, const void* b);
+//int compare_ints(const void* a, const void* b);
 
 /* Create a neural network using the provided genome. Network assumes a fully-connected network. Layers 
 with missing connections use 0 as the weight in the layer matrix. For each layer matrix, the weights are ordered in
 increasing source gene ID order. Hopefully we can use these matrices to increase performance using CUDA later.
 A new network should only be created once a creature spawns or a generation begins. Pretty expensive call; so use 
 it correctly*/
+/*
 struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome) {
 	int network_matrices_count = 0;
 	struct network_matrix* network_matrices = malloc(sizeof(struct network_matrix) * (genome->layers - 1));
@@ -118,7 +119,7 @@ struct multilayer_perceptron create_multilayer_perceptron(struct genome* genome)
 				layer_matrix_count++;
 			}
 		}*/
-
+/*
 		//row aligned for blas sgemm
 		for (int j = 0; j < last_layer_count; j++) {
 			for (int k = 0; k < layer_ids_count; k++) {
@@ -209,9 +210,10 @@ void evaluate(struct multilayer_perceptron* network) {
 	for (int i = 0; i < network->matrices_count; i++) {
 		float* result = _aligned_malloc(last_columns * network->matrices[i].rows *  sizeof(float), 64);
 		//memset(result, 0.0f, last_columns * network->matrices[i].rows);
-		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, last_rows, network->matrices[i].columns,
+		/*cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, last_rows, network->matrices[i].columns,
 			last_columns, alpha, *last_vector,network->matrices[i].rows, network->matrices[i].buffer,
-			network->matrices[i].columns, beta, result, network->matrices[i].columns);
+			network->matrices[i].columns, beta, result, network->matrices[i].columns);*/
+/*
 		_aligned_free(*last_vector);
 
 		for (int j = 0; j < network->matrices[i].columns; j++) { //apply activation
@@ -254,3 +256,4 @@ void free_multilayer_perceptron(struct multilayer_perceptron* network) {
 	free(network->input_components); //dont free the component pointers
 	free(network->output_components);
 }
+*/
