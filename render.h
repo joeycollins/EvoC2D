@@ -12,9 +12,9 @@ struct renderer {
 	int indices_count;
 };
 
-void render(mat4* transform, struct renderer* renderer, mat4 view);
+void render(mat4* transform, struct renderer* renderer);
 
 struct renderer create_renderer(struct shape* shape, unsigned int shader);
 
-void delete_renderer(struct renderer* renderer);
+void free_renderer(struct renderer* renderer);
 #endif

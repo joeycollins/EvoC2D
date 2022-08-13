@@ -1,46 +1,71 @@
 #include "gatherer.h"
 #include "globals.h"
+#include "organism.h"
 #include <cglm/mat4.h>
 #include <cglm/cglm.h>
 
-mat4* get_closest_food_transform(struct food_context* context, mat4* this_transform);
+void get_closest_food_transform(struct food_context* context, mat4* this_transform, mat4 dest);
 
-void food_sensor(struct component* component,vec2* position) {
-	mat4* closest_transform = get_closest_food_transform(&main_food_context, &component->this_creature->transform);
+void get_gps(struct component* component, float* value) {
+	value[0] = component->this_creature->transform[3][0];
+	value[1] = component->this_creature->transform[3][1];
+}
+
+void food_sensor(struct component* component,float* position) {
+	mat4 closest_transform;
+	get_closest_food_transform(&main_food_context, &component->this_creature->transform, closest_transform);
 	if (closest_transform == NULL) {
 		glm_vec2_zero(position);
 		return;
 	}
-	mat4 new_mat;
-	glm_mat4_copy(*closest_transform, new_mat);
-	vec2 closest_position = { new_mat[3][0], new_mat[3][1] };
+	
+	vec2 closest_position = { closest_transform[3][0] - component->this_creature->transform[3][0],
+		closest_transform[3][1] - component->this_creature->transform[3][1] };
+
+	glm_vec2_normalize(closest_position);
 	glm_vec2_copy(closest_position, position);
 }
 
-mat4* get_closest_food_transform(struct food_context* context, mat4* this_transform) {
-	mat4** closest = malloc(sizeof(mat4*));
-	if (closest == NULL) { return NULL; }
+float quick_magnitude_2d(mat4 transform1, mat4 transform2) {
+	float delta_x = transform2[3][0] - transform1[3][0];
+	float delta_y = transform2[3][1] - transform1[3][1];
+	return (delta_x * delta_x) + (delta_y * delta_y);
+}
+
+void get_closest_food_transform(struct food_context* context, mat4* this_transform, mat4 dest) {
+	mat4 closest;
 	float dist = FLT_MAX;
-	mat4 new_mat;
-	glm_mat4_copy(*this_transform, new_mat);
-	float this_x = new_mat[3][0];
-	float this_y = new_mat[3][1];
 	for (int i = 0; i < context->food_count; i++) {
-		float delta_x = context->food[i].transform[3][0] - this_x;
-		float delta_y = context->food[i].transform[3][1] - this_y;
-		float sqrMag = (delta_x * delta_x) + (delta_y * delta_y);
+		if (!context->food[i].alive) { continue; }
+		float sqrMag = quick_magnitude_2d(this_transform, context->food[i].transform);
 		if (sqrMag < dist) {
 			dist = sqrMag;
-			*closest = &context->food[i].transform;
+			glm_mat4_copy(context->food[i].transform, closest);
 		}
 	}
-	mat4* result;
-	if (*closest != NULL) {
-		result = *closest;
+	glm_mat4_copy(closest, dest);
+}
+
+void creature_sensor(struct component* component, float* position) {
+
+
+}
+
+void get_closest_creature_transform(struct component* component, 
+	struct organism* existing_organisms, int count) {
+	mat4 closest;
+	float closest_mag = FLT_MAX;
+	for (int i = 0; i < count; i++) {
+		struct creature* creature = &existing_organisms[i].creature;
+		if (creature == component->this_creature) {
+			continue;
+		}
+		float mag = quick_magnitude_2d(component->this_creature->transform,
+			creature->transform);
+		if (mag < closest_mag) {
+			closest_mag = mag;
+			glm_mat4_copy(creature->transform, closest);
+		}
 	}
-	else {
-		result = NULL;
-	}
-	free(closest);
-	return result;
+	return closest;
 }

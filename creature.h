@@ -2,6 +2,7 @@
 #define CREATURE_H
 
 #include "component.h"
+#include "innovation.h"
 #include <stdbool.h>
 #include <cglm/mat4.h>
 
@@ -15,15 +16,15 @@ struct creature {
 	struct component* origin; //growth origin
 };
 
-struct creature_context {
-	int generation;
-	int alive_count;
-	struct creature* alive_creatures; 
-};
-
-struct creature create_creature(const char name[16], struct component origin_component);
+struct creature create_creature(const char name[16]);
 
 //Creates a simple creature with a food sensor and a thruster
 void create_simple_creature(struct creature* creature_base);
+
+void create_simple_creature_2(struct creature* creature_base);
+
+void free_creature(struct creature* creature);
+
+void breed_creature(struct creature* FATHER_creature, struct creature* mother_creature, struct creature* dest);
 
 #endif

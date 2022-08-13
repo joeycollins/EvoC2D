@@ -122,7 +122,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>openblas.lib;liblapacke.lib;liblapack.lib;libblas.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LAPACKE.lib;LAPACK.lib;BLAS.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\OpenGLDependencies\Lib\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -143,25 +143,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Downloads\src\glad.c" />
+    <ClCompile Include="..\GLAD\src\glad.c" />
     <ClCompile Include="actualizer.c" />
     <ClCompile Include="camera.c" />
+    <ClCompile Include="collision.c" />
     <ClCompile Include="component.c" />
+    <ClCompile Include="connection.c" />
     <ClCompile Include="creature.c" />
     <ClCompile Include="evoshader.c" />
     <ClCompile Include="food.c" />
     <ClCompile Include="gatherer.c" />
+    <ClCompile Include="gene.c" />
     <ClCompile Include="genome.c" />
     <ClCompile Include="innovation.c" />
+    <ClCompile Include="linkedlist.c" />
+    <ClCompile Include="linkednetwork.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="multilayerperceptron.c" />
+    <ClCompile Include="organism.c" />
     <ClCompile Include="render.c" />
     <ClCompile Include="sequence.c" />
     <ClCompile Include="shapes.c" />
+    <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="actualizer.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="collision.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="creature.h" />
@@ -172,10 +180,15 @@
     <ClInclude Include="genome.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="innovation.h" />
+    <ClInclude Include="intsequence.h" />
+    <ClInclude Include="linkedlist.h" />
+    <ClInclude Include="linkednetwork.h" />
     <ClInclude Include="multilayerperceptron.h" />
+    <ClInclude Include="organism.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="sequence.h" />
     <ClInclude Include="shapes.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentshader1.fsh" />

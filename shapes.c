@@ -4,7 +4,8 @@
 #include <math.h>
 
 void dfs_initialize(struct component* root, int* vertices_count, int* indices_count);
-void dfs_build(struct shape* shape, struct component* component, float position_offset[2], float offset_angle, float growth_radius, bool decay_growth);
+void dfs_build(struct shape* shape, struct component* component, float position_offset[2], 
+	float offset_angle, float growth_radius, bool decay_growth);
 
 
 struct shape create_creature_model(struct creature* creature, bool decay_growth) { //decay not implemented
@@ -34,8 +35,10 @@ void dfs_initialize(struct component* root, int* vertices_count, int* indices_co
 	else {
 		*vertices_count += MAX_CHILDREN * 6;
 		*indices_count += (MAX_CHILDREN - 2) * 3 + root->children_count * 3;
-		for (int i = 0; i < root->children_count; i++) {
-			dfs_initialize(root->children[i], vertices_count, indices_count);
+		for (int i = 0; i < MAX_CHILDREN; i++) {
+			if (root->child_exists[i]) {
+				dfs_initialize(root->children[i], vertices_count, indices_count);
+			}
 		}
 	}
 }
@@ -46,6 +49,13 @@ float decay_function(float x) {
 
 //build the creature from the root component
 void dfs_build(struct shape* shape, struct component* component, float position_offset[2], float offset_angle, float growth_radius, bool decay_growth) {
+	//Assign the component's local position
+	mat4 local_transform;
+	glm_mat4_identity(local_transform);
+	local_transform[3][0] = position_offset[0];
+	local_transform[3][1] = position_offset[1];
+	glm_mat4_copy(local_transform, component->local_transform);
+	glm_vec2_copy(position_offset, component->local_position);
 	//create base polygon
 	unsigned int initial_vertex_idx = shape->vertices_count / 6;
 	for (int i = 0; i < MAX_CHILDREN; i++) {
@@ -73,7 +83,9 @@ void dfs_build(struct shape* shape, struct component* component, float position_
 
 
 	//add connector vertices; small extra overhead for ease of organizing indices (couldve added connectors in the polygon loop)
-	for (int i = 0; i < component->children_count; i++) {
+	for (int i = 0; i < MAX_CHILDREN; i++) {
+		if (component->child_exists[i] == false) { continue; }
+
 		float angle = (float)(i * GROWTH_ANGLE + offset_angle + GROWTH_ANGLE / 2);
 		float x = (COMPONENT_RADIUS + growth_radius) * (float)cos(angle) + position_offset[0];
 		float y = (COMPONENT_RADIUS + growth_radius) * (float)sin(angle) + position_offset[1];
@@ -91,7 +103,6 @@ void dfs_build(struct shape* shape, struct component* component, float position_
 			shape->indices[shape->indices_count + 2] = initial_vertex_idx;
 		}
 		shape->indices_count += 3;
-
 	}
 }
 

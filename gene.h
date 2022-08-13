@@ -6,15 +6,22 @@
 #include <cglm/vec3.h>
 
 struct gene {
+	//structure
 	int id;
 	int distance;
 	struct component* component;
+	//evalution
+	float value;
+	int active_incoming_connections;
+	int incoming_connections_executed;
 };
 
 struct gene_sequence {
-	unsigned int capacity;
-	unsigned int count;
+	int capacity;
+	int count;
 	struct gene* buffer;
-	unsigned int realloc_amt;
+	int realloc_amt;
 };
+
+struct gene create_gene(int id, int distance, struct component* component);
 #endif

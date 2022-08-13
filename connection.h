@@ -13,10 +13,12 @@ struct connection {
 };
 
 struct connection_sequence {
-	unsigned int capacity;
-	unsigned int count;
+	int capacity;
+	int count;
 	struct connection* buffer;
-	unsigned int realloc_amt;
+	int realloc_amt;
 };
+
+void mutate_connection(struct connection* connection, float mutate_weight_chance, float mutate_enabled_chance);
 
 #endif
