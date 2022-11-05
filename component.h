@@ -1,18 +1,15 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef COMPONENT_H_INCLUDED
+#define COMPONENT_H_INCLUDED
 
 #include "intsequence.h"
 #include "collision.h"
-#include "creature.h"
+#include "gene.h"
+#include "settings.h"
 #include <cglm/vec2.h>
-#include <cglm/vec3.h>
 #include <cglm/mat4.h>
 #include <stdbool.h>
 
-#define COMPONENT_RADIUS 0.1f
-#define MAX_CHILDREN 7
-#define GROWTH_RADIUS 0.50f
-#define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
+struct creature;
 
 enum component_type {
 	INPUT,
@@ -23,7 +20,9 @@ enum activity_type {
 	THRUSTER,
 	ROTATOR,
 	FOOD_SENSOR,
-	GPS
+	GPS,
+	ASEX_REPRO,
+	ENERGY_METER
 };
 
 struct io_component {
@@ -39,6 +38,7 @@ struct component_sequence {
 	int realloc_amt;
 };
 
+
 struct component {
 	struct int_sequence key;
 	float color[3];
@@ -47,11 +47,14 @@ struct component {
 	enum component_type io_type;
 	enum activity_type activity_type;
 	struct io_component io_component;
+	struct gene_sequence genes;
 	int children_count;
 	struct component* children[MAX_CHILDREN];
 	bool child_exists[MAX_CHILDREN];
 	struct creature* this_creature;
 	struct collider collider;
+	float cooldown;
+	float cooldown_timer;
 };
 
 struct component create_thruster_component();
@@ -67,5 +70,7 @@ void assign_color(struct component* component, float color[3]);
 void attach_collider(struct component* component, bool isEnabled);
 
 void get_component_position(struct component* component, vec2* dest);
+
+void free_component(struct component* component);
 
 #endif

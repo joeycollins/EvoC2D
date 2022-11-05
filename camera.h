@@ -1,5 +1,5 @@
-#ifndef  CAMERA_H
-#define CAMERA_H
+#ifndef CAMERA_H_INCLUDED
+#define CAMERA_H_INCLUDED
 
 #include <cglm/vec3.h>
 

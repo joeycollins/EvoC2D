@@ -1,7 +1,10 @@
 #include "component.h"
+#include "creature.h"
 #include "actualizer.h"
 #include "gatherer.h"
 #include <cglm/cglm.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 void set_child_exists_array(bool *dest) {
 	for (int i = 0; i < MAX_CHILDREN; i++) {
@@ -65,6 +68,40 @@ struct component create_gps_component() {
 	return gps;
 }
 
+struct component create_asex_repro_component() {
+	struct component rot = {
+		.children_count = 0,
+		.io_type = OUTPUT,
+		.activity_type = ASEX_REPRO,
+		.cooldown = 7,
+		.cooldown_timer = 7,
+		.io_component = {
+			.vector_size = 1,
+			.ids = malloc(sizeof(int) * 1),
+			.activity = &asexual_reproduction
+		}
+	};
+	return rot;
+}
+
+
+struct component create_energy_meter_component() {
+	struct component rot = {
+		.children_count = 0,
+		.io_type = INPUT,
+		.activity_type = ENERGY_METER,
+		.io_component = {
+			.vector_size = 1,
+			.ids = malloc(sizeof(int) * 1),
+			.activity = &get_eps
+		}
+	};
+	return rot;
+}
+
+
+
+
 struct component create_component(enum activity_type activity_type) {
 	struct component res;
 	switch (activity_type) {
@@ -80,6 +117,12 @@ struct component create_component(enum activity_type activity_type) {
 	case GPS:
 		res = create_gps_component();
 		break;
+	case ASEX_REPRO:
+		res = create_asex_repro_component();
+		break;
+	case ENERGY_METER:
+		res = create_energy_meter_component();
+		break;
 	default:
 		res = create_thruster_component();
 		break;
@@ -94,6 +137,7 @@ void assign_color(struct component* component, float color[3]) {
 	component->color[1] = color[1];
 	component->color[2] = color[2];
 }
+
 
 void attach_collider(struct component* component, bool isEnabled) {
 	struct collider coll = {
@@ -115,4 +159,9 @@ void get_component_position(struct component* component, vec2* dest) {
 	};
 
 	glm_vec2_copy(pos, dest);
+}
+
+void free_component(struct component* component) {
+	free(component->genes.buffer);
+	free(component->io_component.ids);
 }

@@ -1,20 +1,23 @@
 #include "food.h"
+#include "simulation.h"
+#include "shapes.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <math.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
-#include <time.h>
-#include <stdio.h>
 
-extern float food_scale_factor;
-extern float delta_time;
+extern struct Simulation main_simulation;
 
 void position_food(struct food* food, float radius);
+void render_food(struct food_context* context, struct food* food);
 
-void update_food_context(struct food_context* context, struct renderer* renderer) {
+void update_food_context(struct food_context* context) {
 	for (int i = 0; i < context->food_count; i++) {
 		struct food* food = &context->food[i];
 		if (!food->alive) {
-			food->cooldown_timer += delta_time;
+			food->cooldown_timer += main_simulation.delta_time;
 			if (food->cooldown_timer > context->cooldown) {
 				food->cooldown_timer = 0.0f;
 				food->alive = true;
@@ -22,20 +25,38 @@ void update_food_context(struct food_context* context, struct renderer* renderer
 			}
 		}
 		else {
-			render(&food->transform, renderer);
+			render_food(context, food);
 		}
 	}
 }
-struct food_context create_food_context(int count, float radius, float cooldown) {
+
+void render_food(struct food_context* context, struct food* food) {
+	unsigned int shader = context->shader;
+	use_shader(shader);
+	unsigned int uniform_loc = glGetUniformLocation(shader, "transform");
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)food->transform);
+	uniform_loc = glGetUniformLocation(shader, "view");
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)main_simulation.view);
+	draw_from_pool_ebo(context->render_info);
+}
+
+struct food_context create_food_context(int count, float radius, float cooldown, unsigned int shader) {
 
 	struct food_context context = {
 		.capacity = count,
 		.radius = radius,
 		.food_count = 0,
 		.food = malloc(sizeof(struct food) * count),
-		.shape = create_food_model(),
-		.cooldown = cooldown
+		.cooldown = cooldown,
+		.shader = shader,
+		.update = &update_food_context
 	};
+
+	struct shape food_shape = create_food_model();
+	struct vao_pool_rendering_info rend_info = add_shape_to_pool(&main_simulation.vao_pool, food_shape);
+	free_shape(&food_shape);
+
+	context.render_info = rend_info;
 
 	for (int i = 0; i < count; i++) {
 		struct food new_food = {
@@ -54,17 +75,9 @@ struct food_context create_food_context(int count, float radius, float cooldown)
 }
 
 void position_food(struct food* food, float radius) {
-	double random_num = rand();
-	double r = (random_num / RAND_MAX) * 2 * M_PI;
-	random_num = rand();
-	float x = (float)(random_num / RAND_MAX * radius * cos(r));
-	random_num = rand();
-	float y = (float)(random_num / RAND_MAX * radius * sin(r));
-	vec3 translation = { x, y , 0.0f };
-	vec3 scale = { food_scale_factor, food_scale_factor, 1.0f };
+	vec3 scale = { 100, 100, 1.0f };
 	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, translation);
+	get_random_translation(0, 0, radius, transform);
 	glm_scale(transform, scale);
 	glm_mat4_copy(transform, food->transform);
 }

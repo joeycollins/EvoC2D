@@ -1,5 +1,5 @@
-#ifndef INT_SEQ_H
-#define INT_SEQ_H
+#ifndef INT_SEQ_H_INCLUDED
+#define INT_SEQ_H_INCLUDED
 
 struct int_sequence {
 	int count;

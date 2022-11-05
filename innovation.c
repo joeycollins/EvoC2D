@@ -102,6 +102,10 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 	case GPS:
 		vector_count = 2;
 		break;
+	case ASEX_REPRO:
+		vector_count = 1;
+	case ENERGY_METER:
+		vector_count = 1;
 	default:
 		vector_count = 1;
 		break;

@@ -1,15 +1,15 @@
-#ifndef LINKED_NET_H
-#define LINKED_NET_H
+#ifndef LINKED_NET_H_INCLUDED
+#define LINKED_NET_H_INCLUDED
 
 #include "linkedlist.h"
-#include "genome.h"
 
+struct genome; struct component;
 
 struct linked_network {
-	int input_groups_count;
-	int output_groups_count;
-	struct linked_list* input_groups;
-	struct linked_list* output_groups;
+	int input_components_count;
+	int output_components_count;
+	struct component** input_components;
+	struct component** output_components;
 	struct linked_list network;
 };
 

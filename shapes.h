@@ -1,9 +1,9 @@
-#ifndef SHAPES_H
-#define SHAPES_H
+#ifndef SHAPES_H_INCLUDED
+#define SHAPES_H_INCLUDED
 
-#include "creature.h"
 #include <stdbool.h>
 
+struct creature;
 
 struct shape {
 	float* vertices;
@@ -12,7 +12,8 @@ struct shape {
 	int indices_count;
 };
 
-struct shape create_creature_model(struct creature* creature, bool decay_growth);
+//offset all ebo indices by indices_offset for vao pooling
+struct shape create_creature_model(struct creature* creature);
 
 struct shape create_food_model();
 

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glad/glad.h>
+#include <stdbool.h>
 
 const char* read_file(const char* path);
 

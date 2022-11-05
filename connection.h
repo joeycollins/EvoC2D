@@ -1,7 +1,9 @@
-#ifndef CONNECTION_H
-#define CONNECTION_H
-#include "gene.h"
+#ifndef CONNECTION_H_INCLUDED
+#define CONNECTION_H_INCLUDED
+
 #include <stdbool.h>
+
+struct gene;
 
 struct connection {
 	int innovation_number;
@@ -16,6 +18,14 @@ struct connection_sequence {
 	int capacity;
 	int count;
 	struct connection* buffer;
+	int realloc_amt;
+};
+
+//unbounded allows for safe realloc
+struct unbounded_connection_sequence {
+	int capacity;
+	int count;
+	struct connection** buffer;
 	int realloc_amt;
 };
 

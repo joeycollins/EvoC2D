@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -150,6 +150,7 @@
     <ClCompile Include="component.c" />
     <ClCompile Include="connection.c" />
     <ClCompile Include="creature.c" />
+    <ClCompile Include="creaturecontext.c" />
     <ClCompile Include="evoshader.c" />
     <ClCompile Include="food.c" />
     <ClCompile Include="gatherer.c" />
@@ -160,10 +161,10 @@
     <ClCompile Include="linkednetwork.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="multilayerperceptron.c" />
-    <ClCompile Include="organism.c" />
     <ClCompile Include="render.c" />
     <ClCompile Include="sequence.c" />
     <ClCompile Include="shapes.c" />
+    <ClCompile Include="simulation.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +174,7 @@
     <ClInclude Include="component.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="creature.h" />
+    <ClInclude Include="creaturecontext.h" />
     <ClInclude Include="evoshader.h" />
     <ClInclude Include="food.h" />
     <ClInclude Include="gatherer.h" />
@@ -184,10 +186,11 @@
     <ClInclude Include="linkedlist.h" />
     <ClInclude Include="linkednetwork.h" />
     <ClInclude Include="multilayerperceptron.h" />
-    <ClInclude Include="organism.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="sequence.h" />
+    <ClInclude Include="settings.h" />
     <ClInclude Include="shapes.h" />
+    <ClInclude Include="simulation.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +199,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="coloredvertexshader.vsh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vertexshader2.vsh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

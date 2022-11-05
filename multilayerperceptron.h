@@ -1,5 +1,5 @@
-#ifndef MLAYER_H
-#define MLAYER_H
+#ifndef MLAYER_H_INCLUDED
+#define MLAYER_H_INCLUDED
 
 #include "genome.h"
 #include "component.h"

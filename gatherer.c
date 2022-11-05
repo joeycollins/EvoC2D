@@ -1,8 +1,12 @@
 #include "gatherer.h"
 #include "globals.h"
-#include "organism.h"
-#include <cglm/mat4.h>
+#include "component.h"
+#include "food.h"
+#include "creature.h"
+#include "simulation.h"
 #include <cglm/cglm.h>
+
+extern struct Simulation main_simulation;
 
 void get_closest_food_transform(struct food_context* context, mat4* this_transform, mat4 dest);
 
@@ -11,9 +15,13 @@ void get_gps(struct component* component, float* value) {
 	value[1] = component->this_creature->transform[3][1];
 }
 
+void get_vitality(struct component* component, float* value) {
+	value[0] = component->this_creature->remaining_life_span / component->this_creature->life_span;
+}
+
 void food_sensor(struct component* component,float* position) {
 	mat4 closest_transform;
-	get_closest_food_transform(&main_food_context, &component->this_creature->transform, closest_transform);
+	get_closest_food_transform(&main_simulation.main_food_context, &component->this_creature->transform, closest_transform);
 	if (closest_transform == NULL) {
 		glm_vec2_zero(position);
 		return;
@@ -56,7 +64,7 @@ void get_closest_creature_transform(struct component* component,
 	mat4 closest;
 	float closest_mag = FLT_MAX;
 	for (int i = 0; i < count; i++) {
-		struct creature* creature = &existing_organisms[i].creature;
+		struct creature* creature = NULL; //TEMP NOT CORRECT
 		if (creature == component->this_creature) {
 			continue;
 		}
@@ -68,4 +76,8 @@ void get_closest_creature_transform(struct component* component,
 		}
 	}
 	return closest;
+}
+
+void get_eps(struct component* component, float* value) {
+	*value = component->this_creature->life_span;
 }

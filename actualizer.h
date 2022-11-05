@@ -1,17 +1,12 @@
-#ifndef ACTUALIZER_H
-#define ACTUALIZER_H
+#ifndef ACTUALIZER_H_INCLUDED
+#define ACTUALIZER_H_INCLUDED
 
-#include "component.h"
-#include "creature.h"
-#include <cglm/vec2.h>
-#include <cglm/vec3.h>
-#include <cglm/mat4.h>
-
-extern float delta_time;
+struct component;
 
 void thruster(struct component* component, float* value);
 
 void rotator(struct component* component, float* value);
 
+void asexual_reproduction(struct component* component, float* value);
 
 #endif

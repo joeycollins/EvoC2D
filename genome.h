@@ -1,26 +1,22 @@
-#ifndef GENOME_H
-#define GENOME_H 
+#ifndef GENOME_H_INCLUDED
+#define GENOME_H_INCLUDED
 
-#include "linkedlist.h"
 #include "connection.h"
-#include "innovation.h"
-#include "creature.h"
 #include "gene.h"
 #include <stdbool.h>
 
-#define INITIAL_CONNECTION_CAPACITY 2000
-#define INITIAL_HIDDEN_CAPACITY 100
+#define INITIAL_CONNECTION_CAPACITY 50
+#define INITIAL_HIDDEN_CAPACITY 30
+
+struct creature; struct innovation_context; struct linked_list;
 
 struct genome {
 	int layers;
-	int input_groups_count;
-	int output_groups_count;
-	struct linked_list* input_groups;
-	struct linked_list* output_groups;
-	struct gene_sequence input_genes;
-	struct gene_sequence hidden_genes;
-	struct gene_sequence output_genes;
+	struct gene_pointer_sequence input_genes;
+	struct gene_pointer_sequence hidden_genes;
+	struct gene_pointer_sequence output_genes;
 	struct connection_sequence connections;
+	struct creature* this_creature;
 };
 
 struct genome create_genome(struct creature* creature);
@@ -37,5 +33,7 @@ void mutate(struct genome* genome, struct innovation_context* context, float add
 void initial_mutate(struct genome* genome, struct innovation_context* context);
 
 void breed_genomes(struct genome* father, struct genome* mother, struct genome* child_base);
+
+void copy_genome(struct genome* genome, struct genome* dest);
 
 #endif

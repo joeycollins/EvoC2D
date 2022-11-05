@@ -1,9 +1,11 @@
-#ifndef FOOD_H
-#define FOOD_H
+#ifndef FOOD_H_INCLUDED
+#define FOOD_H_INCLUDED
+
 #include "render.h"
-#include "shapes.h"
 #include <cglm/mat4.h>
 #include <stdbool.h>
+
+struct renderer;
 
 struct food {
 	mat4 transform;
@@ -17,12 +19,14 @@ struct food_context {
 	int capacity;
 	int cooldown;
 	int food_count;
-	struct shape shape;
+	unsigned int shader;
 	struct food* food;
+	struct vao_pool_rendering_info render_info;
+	void (*update)(struct food_context*);
 };
 
-struct food_context create_food_context(int count, float radius, float cooldown);
+struct food_context create_food_context(int count, float radius, float cooldown, unsigned int shader);
 
-void update_food_context(struct food_context* context, struct renderer* renderer);
+void update_food_context(struct food_context* context);
 
 #endif

@@ -1,11 +1,10 @@
-#ifndef INCLUDE_INNOVATION
-#define INCLUDE_INNOVATION
+#ifndef INCLUDE_INNOVATION_INCLUDED
+#define INCLUDE_INNOVATION_INCLUDED
 
 #define INITIAL_INNOVATIONS_CAPACITY 300
 #define INNOVATION_REALLOC_AMT 500
 
 #include "intsequence.h"
-#include "sequence.h"
 
 struct add_connection_innovation {
 	int first_gene_id;

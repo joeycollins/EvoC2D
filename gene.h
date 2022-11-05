@@ -1,9 +1,7 @@
-#ifndef GENE_H
-#define GENE_H
+#ifndef GENE_H_INCLUDED
+#define GENE_H_INCLUDED
 
-#include "component.h"
-#include <cglm/vec2.h>
-#include <cglm/vec3.h>
+struct component;
 
 struct gene {
 	//structure
@@ -20,6 +18,14 @@ struct gene_sequence {
 	int capacity;
 	int count;
 	struct gene* buffer;
+	int realloc_amt;
+};
+
+//unbounded sequences allow for safe realloc
+struct gene_pointer_sequence { 
+	int capacity;
+	int count;
+	struct gene** buffer;
 	int realloc_amt;
 };
 
