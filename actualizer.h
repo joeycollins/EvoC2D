@@ -9,4 +9,6 @@ void rotator(struct component* component, float* value);
 
 void asexual_reproduction(struct component* component, float* value);
 
+void sexual_reproduction(struct component* component, float* value);
+
 #endif

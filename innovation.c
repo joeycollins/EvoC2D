@@ -104,8 +104,16 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 		break;
 	case ASEX_REPRO:
 		vector_count = 1;
+		break;
 	case ENERGY_METER:
 		vector_count = 1;
+		break;
+	case CREATURE_SENSOR:
+		vector_count = 2;
+		break;
+	case SEXUAL_REPRO:
+		vector_count = 1;
+		break;
 	default:
 		vector_count = 1;
 		break;

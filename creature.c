@@ -2,6 +2,9 @@
 #include "sequence.h"
 #include "innovation.h"
 #include "simulation.h"
+#include "creaturecontext.h"
+#include "render.h"
+#include "settings.h"
 #include "utils.h"
 #include <string.h>
 #include <cglm/cglm.h>
@@ -24,23 +27,31 @@ void position_component_by_key(struct creature* creature, struct component* comp
 
 struct component* add_component(struct creature* creature, struct component component);
 
+void breed_creature(struct creature* FATHER_creature, struct creature* mother_creature, float life_span);
+
+void breed_creature_asex(struct creature* mother, float life_span);
+
 void assign_creature_local_positions(struct component* component, float offset_x, float offset_y, float offset_angle);
 /*
 Create a new creature with life_span and memory for # of component_count, which should be known
 */
-struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation) {
+struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation, int generation) {
 	struct creature new_creature = {
 		.effective_input_count = 0,
 		.effective_output_count  = 0,
 		.life_span = life_span,
 		.remaining_life_span = life_span,
 		.life_stage = ALIVE,
+		.generation = generation,
 		.components = {
 			.capacity = component_count,
 			.count = 0,
 			.buffer = malloc(sizeof(struct component) * component_count),
-			.realloc_amt = 1 //?
-		}
+			.realloc_amt = 0 //?
+		},
+		.reproduce_asex = &breed_creature_asex,
+		.reproduce_sex = &breed_creature,
+		.origin = NULL
 	};
 	//Set name
 	strcpy(new_creature.name, name);
@@ -132,7 +143,7 @@ void position_component_at(struct creature* creature, struct component* componen
 			dest->child_exists[position] = true;
 		}
 		else {
-			printf("A component was replaced");
+			printf("A component was replaced\n");
 		}
 	}
 
@@ -147,9 +158,6 @@ void position_component_random(struct creature* creature, struct component* comp
 	struct structural_innovation_context* context) {
 	int random = rand();
 	int current_comps = creature->components.count;
-	if (current_comps == 0) {
-		return;
-	}
 	int comp_idx = random % current_comps;
 	struct component* add_to = creature->components.buffer + comp_idx;
 	position_component_at(creature, component, add_to, -1, context);
@@ -169,7 +177,7 @@ void create_simple_creature(struct creature* creature_base) {
 	float life_span = 15;
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", life_span, 3, translation);
+	(*creature_base) = create_creature("fernando", life_span, 4, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -181,12 +189,19 @@ void create_simple_creature(struct creature* creature_base) {
 	struct component* thruster_addr = add_component(creature_base, thruster);
 	attach_collider(thruster_addr, true);
 	position_component_at(creature_base, thruster_addr, creature_base->origin, 2, &main_simulation.main_structural_innovation_context);
-	
-	struct component rot = create_component(ROTATOR);
-	struct component* rot_addr = add_component(creature_base, rot);
-	attach_collider(rot_addr, true);
-	position_component_at(creature_base, rot_addr, thruster_addr, 4, &main_simulation.main_structural_innovation_context);
 
+
+	struct component sex = create_component(SEXUAL_REPRO); 
+	struct component* sex_addr = add_component(creature_base, sex);
+	attach_collider(sex_addr, true);
+	position_component_at(creature_base, sex_addr, thruster_addr, 1, &main_simulation.main_structural_innovation_context);
+	
+
+	struct component cresen = create_component(CREATURE_SENSOR);
+	struct component* cresen_addr = add_component(creature_base, cresen);
+	attach_collider(cresen_addr, true);
+	position_component_at(creature_base, cresen_addr, sex_addr, 3, &main_simulation.main_structural_innovation_context);
+	
 	assign_creature_local_positions(origin_addr, 0, 0, 0); // assign local position since we wont create a shape for all creatures spawned
 	creature_base->genome = create_genome(creature_base);
 	initial_mutate(&creature_base->genome, &main_simulation.main_innovation_context);
@@ -197,7 +212,7 @@ void create_simple_creature_2(struct creature* creature_base) {
 	float life_span = 5;
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", life_span, 5, translation);
+	(*creature_base) = create_creature("fernando", life_span, 5, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -215,6 +230,7 @@ void create_simple_creature_2(struct creature* creature_base) {
 	attach_collider(rot_addr, true);
 	position_component_at(creature_base, rot_addr, thruster_addr, 4, &main_simulation.main_structural_innovation_context);
 
+	
 	struct component asex = create_component(ASEX_REPRO);
 	struct component* asex_addr = add_component(creature_base, asex);
 	attach_collider(asex_addr, true);
@@ -257,17 +273,46 @@ bool io_first_id_is_equal(struct component* comp1, struct component* comp2) {
 }
 
 
+void mutate_structural(struct creature* creature) {
+	float roll = rand_flt();
+	enum activity_type activity = (enum activity_type)(rand() % ACTIVITY_COUNT);
+	struct component new_component = create_component(activity);
+	struct component* new_component_addr = add_component(creature, new_component);
+	position_component_random(creature, new_component_addr, &main_simulation.main_structural_innovation_context);
+	attach_collider(new_component_addr, true);
+}
+
+
 void breed_creature_rec(struct component* current_father_component, struct component* current_mother_component, 
 	struct creature* dest_creature, bool at_origin);
 
-void breed_creature(struct creature* FATHER_creature, struct creature* mother_creature, struct creature* dest, float life_span) {
+void breed_creature(struct creature* FATHER_creature, struct creature* mother_creature, float life_span) {
+	struct creature* dest = add_to_context(&main_simulation.main_creature_context);
 	mat4 translation;
 	get_translation_matrix(FATHER_creature->transform, translation);
-	*dest = create_creature(FATHER_creature->name, life_span, FATHER_creature->components.count, translation); //reallocing is safe for component count
+	int mutate_structurally = 0;
+	if (rand_flt() < STRUCTURAL_MUTATION_CHANCE) {
+		mutate_structurally = 1;
+	}
+	//could count before. currently just sac the memory, shouldnt be an issue
+	//reallocing is not safe for component count since the breed rec fn will set the origin and stored component pointers for component children.
+	*dest = create_creature(FATHER_creature->name, life_span,
+		FATHER_creature->components.count + mother_creature->components.count + mutate_structurally, translation, FATHER_creature->generation + 1);
 	breed_creature_rec(FATHER_creature->origin, mother_creature->origin,
 		dest, true);
+	if (mutate_structurally == 1) {
+		mutate_structural(dest);
+		struct shape creature_shape = create_creature_model(dest);
+		dest->rendering_info = add_shape_to_pool(&main_simulation.vao_pool, creature_shape);
+		free_shape(&creature_shape);
+	}
+	else {
+		dest->rendering_info = FATHER_creature->rendering_info;
+	}
+	assign_creature_local_positions(dest->origin, 0.0f, 0.0f, 0.0f);
 	dest->genome = create_genome(dest);
 	breed_genomes(&FATHER_creature->genome, &mother_creature->genome, &dest->genome);
+	mutate(&dest->genome, &main_simulation.main_innovation_context, 0.7f, 0.5f, 0.2f);
 	dest->network = create_linked_network(&dest->genome);
 }
 
@@ -277,23 +322,19 @@ void breed_creature_rec(struct component* current_father_component, struct compo
 	if (current_father_component == NULL && current_mother_component == NULL) {
 		return;
 	}else if (current_father_component == NULL) { //disjoint
-		new_component = create_component(current_mother_component->activity_type, current_mother_component->color[0],
-			current_mother_component->color[1], current_mother_component->color[2]);
+		new_component = create_component(current_mother_component->activity_type);
 	//disjoint || equivalent
 	}else if (current_mother_component == NULL || io_first_id_is_equal(current_father_component, current_mother_component)) { 
-		new_component = create_component(current_father_component->activity_type, current_father_component->color[0],
-			current_father_component->color[1], current_father_component->color[2]);		
+		new_component = create_component(current_father_component->activity_type);		
 	}
 	else { //competing
 		int random = rand();
 		int choice = random % 2;
 		if (choice == 0) {
-			new_component = create_component(current_father_component->activity_type, current_father_component->color[0],
-				current_father_component->color[1], current_father_component->color[2]);
+			new_component = create_component(current_father_component->activity_type);
 		}
 		else {
-			new_component = create_component(current_mother_component->activity_type, current_mother_component->color[0],
-				current_mother_component->color[1], current_mother_component->color[2]);
+			new_component = create_component(current_mother_component->activity_type);
 		}
 	}
 	struct component* new_comp_addr = add_component(dest_creature, new_component);
@@ -340,13 +381,26 @@ void breed_creature_rec(struct component* current_father_component, struct compo
 
 void breed_creature_asex_rec(struct component* current_component, struct creature* destination_creature, bool at_origin);
 
-void breed_creature_asex(struct creature* mother, struct creature* dest, float life_span) {
+void breed_creature_asex(struct creature* mother, float life_span) {
+	struct creature* dest = add_to_context(&main_simulation.main_creature_context);
 	mat4 translation;
 	get_translation_matrix(mother->transform, translation);
-	*dest = create_creature(mother->name, life_span, mother->components.count, translation);
+	int mutate_structurally = 0;
+	if (rand_flt() < STRUCTURAL_MUTATION_CHANCE) {
+		mutate_structurally = 1;
+	}
+	*dest = create_creature(mother->name, life_span, mother->components.count + mutate_structurally, translation, mother->generation + 1);
 	breed_creature_asex_rec(mother->origin, dest, life_span);
+	if (mutate_structurally == 1) {
+		mutate_structural(dest);
+		struct shape creature_shape = create_creature_model(dest);
+		dest->rendering_info = add_shape_to_pool(&main_simulation.vao_pool, creature_shape);
+		free_shape(&creature_shape);
+	}
+	else {
+		dest->rendering_info = mother->rendering_info;
+	}
 	assign_creature_local_positions(dest->origin, 0.0f, 0.0f, 0.0f);
-	dest->rendering_info = mother->rendering_info;
 	dest->genome = create_genome(dest);
 	copy_genome(&mother->genome, &dest->genome);
 	mutate(&dest->genome, &main_simulation.main_innovation_context, 0.7f, 0.5f, 0.2f);
@@ -355,8 +409,7 @@ void breed_creature_asex(struct creature* mother, struct creature* dest, float l
 
 void breed_creature_asex_rec(struct component* current_component, struct creature* dest_creature,bool at_origin) {
 	//
-	struct component new_component = create_component(current_component->activity_type, current_component->color[0],
-		current_component->color[1], current_component->color[2]);
+	struct component new_component = create_component(current_component->activity_type);
 	struct component* new_comp_addr = add_component(dest_creature, new_component);
 	attach_collider(new_comp_addr, true);
 	if (at_origin) {

@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\OpenGLDependencies\Include\</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\OpenGLDependencies\Lib\</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\OpenGLDependencies\Include\;C:\freetype-2.12.1\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\OpenGLDependencies\Lib\;C:\freetype-2.12.1\build\Debug\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -122,7 +122,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>LAPACKE.lib;LAPACK.lib;BLAS.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetyped.lib;LAPACKE.lib;LAPACK.lib;BLAS.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\OpenGLDependencies\Lib\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -157,6 +157,7 @@
     <ClCompile Include="gene.c" />
     <ClCompile Include="genome.c" />
     <ClCompile Include="innovation.c" />
+    <ClCompile Include="inspector.c" />
     <ClCompile Include="linkedlist.c" />
     <ClCompile Include="linkednetwork.c" />
     <ClCompile Include="main.c" />
@@ -165,6 +166,7 @@
     <ClCompile Include="sequence.c" />
     <ClCompile Include="shapes.c" />
     <ClCompile Include="simulation.c" />
+    <ClCompile Include="text.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +184,7 @@
     <ClInclude Include="genome.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="innovation.h" />
+    <ClInclude Include="inspector.h" />
     <ClInclude Include="intsequence.h" />
     <ClInclude Include="linkedlist.h" />
     <ClInclude Include="linkednetwork.h" />
@@ -191,10 +194,13 @@
     <ClInclude Include="settings.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="simulation.h" />
+    <ClInclude Include="text.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentshader1.fsh" />
+    <None Include="inspectorfragmentshader.fsh" />
+    <None Include="textfragmentshader.fsh" />
     <None Include="vertexshader1.vsh" />
   </ItemGroup>
   <ItemGroup>
@@ -204,6 +210,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vertexshader2.vsh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="textvertexshader.vsh">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="inspectorvertexshader.vsh">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

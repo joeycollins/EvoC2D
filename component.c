@@ -2,6 +2,7 @@
 #include "creature.h"
 #include "actualizer.h"
 #include "gatherer.h"
+#include <string.h>
 #include <cglm/cglm.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -23,6 +24,7 @@ struct component create_thruster_component() {
 			.activity = &thruster
 		}
 	};
+	strcpy(nthruster.name, "Thruster");
 	return nthruster;
 }
 
@@ -37,6 +39,7 @@ struct component create_food_sensor_component() {
 			.activity  = &food_sensor
 		},
 	};
+	strcpy(sensor.name, "Food Sensor");
 	return sensor;
 }
 
@@ -51,6 +54,7 @@ struct component create_rotator_component() {
 			.activity = &rotator
 		}
 	};
+	strcpy(rot.name, "Rotator");
 	return rot;
 }
 
@@ -65,6 +69,7 @@ struct component create_gps_component() {
 			.activity = &get_gps
 		}
 	};
+	strcpy(gps.name, "GPS");
 	return gps;
 }
 
@@ -81,6 +86,7 @@ struct component create_asex_repro_component() {
 			.activity = &asexual_reproduction
 		}
 	};
+	strcpy(rot.name, "Asexual Reproduction");
 	return rot;
 }
 
@@ -96,10 +102,41 @@ struct component create_energy_meter_component() {
 			.activity = &get_eps
 		}
 	};
+	strcpy(rot.name, "Energy Meter");
 	return rot;
 }
 
+struct component create_creature_sensor_component() {
+	struct component cs = {
+		.children_count = 0,
+		.io_type = INPUT,
+		.activity_type = CREATURE_SENSOR,
+		.io_component = {
+			.vector_size = 2,
+			.ids = malloc(sizeof(int) * 2),
+			.activity = &creature_sensor
+		}
+	};
+	strcpy(cs.name, "Creature Sensor");
+	return cs;
+}
 
+struct component create_sexual_reproduction_component() {
+	struct component sr = {
+		.children_count = 0,
+		.io_type = OUTPUT,
+		.activity_type = SEXUAL_REPRO,
+		.cooldown = 25,
+		.cooldown_timer = 25,
+		.io_component = {
+			.vector_size = 1,
+			.ids = malloc(sizeof(int) * 1),
+			.activity = &sexual_reproduction
+		}
+	};
+	strcpy(sr.name, "Sexual Reproduction");
+	return sr;
+}
 
 
 struct component create_component(enum activity_type activity_type) {
@@ -122,6 +159,12 @@ struct component create_component(enum activity_type activity_type) {
 		break;
 	case ENERGY_METER:
 		res = create_energy_meter_component();
+		break;
+	case CREATURE_SENSOR:
+		res = create_creature_sensor_component();
+		break;
+	case SEXUAL_REPRO:
+		res = create_sexual_reproduction_component();
 		break;
 	default:
 		res = create_thruster_component();

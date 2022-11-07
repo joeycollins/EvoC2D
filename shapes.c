@@ -128,3 +128,34 @@ struct shape create_food_model() {
 
 	return food;
 }
+
+struct shape create_inspector_panel_model() {
+	struct shape panel = {
+		.vertices_count = 24,
+		.indices_count = 6,
+		.indices = malloc(sizeof(unsigned int) * 6),
+		.vertices = malloc(sizeof(float) * 24)
+	};
+
+	float vertices[24] = {
+		0.0f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f,
+		0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f,
+		0.5f, 1.0f, 0.0f, 0.5f, 0.5f, 0.5f,
+		0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 0.5f,
+	};
+
+	for (int i = 0; i < 24; i++) {
+		panel.vertices[i] = vertices[i];
+	}
+
+	unsigned int indices[6] = {
+		0, 1, 2, 0, 2, 3
+	};
+
+	for (int i = 0; i < 6; i++) {
+		panel.indices[i] = indices[i];
+	}
+
+	return panel;
+
+}

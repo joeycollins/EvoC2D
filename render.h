@@ -45,4 +45,6 @@ void draw_from_pool_vbo(struct vao_pool* pool, struct vao_pool_rendering_info in
 void bind_vao(unsigned int vao);
 
 void use_shader(unsigned int shader);
+
+struct vao create_text_vao();
 #endif

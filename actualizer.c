@@ -3,6 +3,7 @@
 #include "creature.h"
 #include "simulation.h"
 #include "creaturecontext.h"
+#include "utils.h"
 #include <cglm/cglm.h>
 
 extern struct Simulation main_simulation;
@@ -25,10 +26,46 @@ void asexual_reproduction(struct component* component, float* value) {
 	float gate = 0.9f;
 	component->cooldown_timer -= main_simulation.delta_time;
 	if (*value > gate && component->cooldown_timer < 0) {
-		struct creature* child = add_to_context(&main_simulation.main_creature_context);
-		breed_creature_asex(component->this_creature, child, 5);
+		component->this_creature->reproduce_asex(component->this_creature, 15);
 		component->this_creature->life_span -= 15;
 		component->cooldown_timer = component->cooldown;
 		//some sort of life donator
+	}
+}
+
+
+struct creature* get_closest_creature(struct creature_context* context, struct creature* this_creature) {
+	struct creature* closest_creature = NULL;
+	float closest_mag = FLT_MAX;
+	for (int i = 0; i < context->creatures_count; i++) {
+		struct creature* creature = context->creatures[i];
+		if (creature->life_stage != ALIVE) {
+			continue;
+		}
+		if (creature == this_creature) {
+			continue;
+		}
+		float mag = quick_magnitude_2d(this_creature->transform,
+			creature->transform);
+		if (mag < closest_mag) {
+			closest_mag = mag;
+			closest_creature = creature;
+		}
+	}
+	return closest_creature;
+}
+
+void sexual_reproduction(struct component* component, float* value) {
+	float gate = 0.0f;
+	float tdist = 300;
+	component->cooldown_timer -= main_simulation.delta_time;
+	if (*value > gate && component->cooldown_timer < 0) {
+		struct creature* mate = get_closest_creature(&main_simulation.main_creature_context, component->this_creature);
+		if (mate == NULL) { return; }
+		float dist = mat4_distance_2d(component->this_creature->transform, mate->transform);
+		if (dist < tdist) {
+			component->this_creature->reproduce_sex(component->this_creature, mate, 15);
+			component->cooldown_timer = component->cooldown;
+		}
 	}
 }

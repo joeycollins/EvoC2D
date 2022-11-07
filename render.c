@@ -10,7 +10,7 @@ extern struct Simulation main_simulation;
 
 void bind_vao(unsigned int vao) {
     if (vao != main_simulation.current_vao) {
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
         glBindVertexArray(vao);
         main_simulation.current_vao = vao;
     }
@@ -60,6 +60,27 @@ void expand_vao_pool(struct vao_pool* vao_pool) {
     vao_pool->count++;
 }
 
+struct vao create_text_vao() {
+    unsigned int VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    bind_vao(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    struct vao new_vao = {
+        .vao = VAO,
+        .vbo = VBO,
+        .current_vbo_offset = 0
+    };
+
+    return new_vao;
+}
+
 void offset_indices(unsigned int offset, unsigned int* indices, int count) {
     for (int i = 0; i < count; i++) {
         indices[i] += offset;
@@ -80,18 +101,20 @@ struct vao_pool_rendering_info add_shape_to_pool(struct vao_pool* vao_pool, stru
     
     glBindBuffer(GL_ARRAY_BUFFER, current_vao->vbo);
     glBufferSubData(GL_ARRAY_BUFFER, current_vao->current_vbo_offset * sizeof(float), sizeof(float) * shape.vertices_count, shape.vertices);
+   
     info.vbo_offset = current_vao->current_vbo_offset;
     info.vbo_count = shape.vertices_count;
-    offset_indices(current_vao->current_ebo_offset, shape.indices, shape.indices_count); //offset ebo indices
+    offset_indices(current_vao->current_vbo_offset/6, shape.indices, shape.indices_count); //offset ebo indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current_vao->ebo);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, current_vao->current_ebo_offset * sizeof(unsigned int), sizeof(unsigned int) * shape.indices_count, shape.indices);
+
     info.ebo_offset = current_vao->current_ebo_offset;
     info.ebo_count = shape.indices_count;
 
     //debug subdata
-    //unsigned int* ptr = malloc(sizeof(unsigned int) * info.ebo_count);
-    //glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER,0, info.ebo_count * sizeof(unsigned int), ptr);
-    //free(ptr);
+   // unsigned int* ptr = malloc(sizeof(unsigned int) * info.ebo_count);
+   // glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, info.ebo_offset * sizeof(unsigned int), info.ebo_count * sizeof(unsigned int), ptr);
+   // free(ptr);
     current_vao->current_vbo_offset += shape.vertices_count;
     current_vao->current_ebo_offset += shape.indices_count;
    

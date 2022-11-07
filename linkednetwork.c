@@ -19,6 +19,7 @@ struct linked_network create_linked_network(struct genome* genome) {
 	for (int i = 0; i < genome->layers; i++) {
 		for (int j = 0; j < genome->connections.count; j++) {
 			if (genome->connections.buffer[j].enabled && genome->connections.buffer[j].first_gene->distance == i) {
+				genome->connections.buffer[j].second_gene->active_incoming_connections++;
 				list_add(&connections, genome->connections.buffer + j);
 			}
 		}

@@ -23,6 +23,7 @@ enum life_stage {
 struct creature {
 	char name[16];
 	mat4 transform;
+	int generation;
 	float life_span;
 	float remaining_life_span;
 	enum life_stage life_stage;
@@ -36,9 +37,12 @@ struct creature {
 	struct linked_network network;
 	struct vao_pool_rendering_info rendering_info;
 	struct creature_context* this_context;
+	//functionality built into all creatures; sexual reproduction is controlled by a component
+	void (*reproduce_asex)(struct creature*, float);
+	void (*reproduce_sex)(struct creature*, struct creature*, float);
 };
 
-struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation);
+struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation, int generation);
 
 //Creates a simple creature with a food sensor and a thruster
 void create_simple_creature(struct creature* creature_base);
@@ -49,7 +53,4 @@ void free_creature(struct creature* creature);
 
 void update_creature(struct creature* creature);
 
-void breed_creature(struct creature* FATHER_creature, struct creature* mother_creature, struct creature* dest, float life_span);
-
-void breed_creature_asex(struct creature* mother, struct creature* dest, float life_span);
 #endif

@@ -157,7 +157,7 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 	sequence_add_connection(&genome->connections, new_connection);
 
 	//update gene info
-	second_gene->active_incoming_connections++;
+	//second_gene->active_incoming_connections++;
 }
 
 bool contains_int(int* sequence, int count, int element) {
@@ -258,7 +258,7 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 	sequence_add_connection(&genome->connections, new_connection_1);
 	sequence_add_connection(&genome->connections, new_connection_2);
 
-	new_gene_addr->active_incoming_connections++;
+	//new_gene_addr->active_incoming_connections++;
 }
 
 void mutate(struct genome* genome, struct innovation_context* context, float add_connection_chance,
@@ -342,7 +342,10 @@ struct connection* add_bred_connection(struct genome* base, int innovation_numbe
 		.split = split,
 		.weight = weight
 	};
-	second_gene->active_incoming_connections++;
+	/*
+	if (enabled) {
+		second_gene->active_incoming_connections++;
+	}*/
 	return sequence_add_connection(&base->connections, new_connection);
 }
 /*

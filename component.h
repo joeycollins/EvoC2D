@@ -16,13 +16,16 @@ enum component_type {
 	OUTPUT
 };
 
+#define ACTIVITY_COUNT 8
 enum activity_type {
 	THRUSTER,
 	ROTATOR,
 	FOOD_SENSOR,
 	GPS,
 	ASEX_REPRO,
-	ENERGY_METER
+	ENERGY_METER,
+	CREATURE_SENSOR,
+	SEXUAL_REPRO
 };
 
 struct io_component {
@@ -40,6 +43,7 @@ struct component_sequence {
 
 
 struct component {
+	char name[32];
 	struct int_sequence key;
 	float color[3];
 	mat4 local_transform;
@@ -56,12 +60,6 @@ struct component {
 	float cooldown;
 	float cooldown_timer;
 };
-
-struct component create_thruster_component();
-
-struct component create_food_sensor_component();
-
-struct component create_rotator_component();
 
 struct component create_component(enum activity_type activity_type);
 

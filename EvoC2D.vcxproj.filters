@@ -87,6 +87,12 @@
     <ClCompile Include="creaturecontext.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inspector.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="innovation.h">
@@ -161,6 +167,12 @@
     <ClInclude Include="creaturecontext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inspector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertexshader1.vsh">
@@ -173,6 +185,18 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="vertexshader2.vsh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="textfragmentshader.fsh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="textvertexshader.vsh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="inspectorfragmentshader.fsh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="inspectorvertexshader.vsh">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

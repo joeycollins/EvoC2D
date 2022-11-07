@@ -1,6 +1,8 @@
 #include "simulation.h"
 #include "creature.h"
 #include "settings.h"
+#include "text.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,6 +14,8 @@ static float last_time = 0.0f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 void init(struct Simulation* simulation) {
     glfwInit();
@@ -35,6 +39,8 @@ void init(struct Simulation* simulation) {
             APP_NAME, primary_monitor, NULL);
     }
     else {
+        simulation->screen_width = DEFAULT_SCRN_WIDTH;
+        simulation->screen_height = DEFAULT_SCRN_HEIGHT;
         simulation->window = glfwCreateWindow(simulation->screen_width, simulation->screen_height,
             APP_NAME, NULL, NULL);
     }
@@ -48,6 +54,8 @@ void init(struct Simulation* simulation) {
 
     glfwMakeContextCurrent(simulation->window);
     glfwSetFramebufferSizeCallback(simulation->window, framebuffer_size_callback);
+    glfwSetKeyCallback(simulation->window, key_callback);
+    glfwSetMouseButtonCallback(simulation->window, mouse_button_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -55,11 +63,18 @@ void init(struct Simulation* simulation) {
         return -1;
     }
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    initialize_text_character_set(); //add font
+
     create_camera(&simulation->main_camera, simulation->screen_width, simulation->screen_height); //create the main camera
+    //want ui and sim to use different coord systems
     glm_ortho(0.0f, (float)simulation->screen_width, (float)simulation->screen_height, 0.0f, -1.0f, 1.0f, simulation->ortho);
+    glm_ortho(0.0f, (float)simulation->screen_width, 0.0f, (float)simulation->screen_height, -1.0f, 1.0f, simulation->ui_projection);
 }
 
 void run() {
+
     while (!glfwWindowShouldClose(main_simulation.window))
     {
         float current_time = (float)glfwGetTime();
@@ -78,16 +93,17 @@ void run() {
         //updates
         main_simulation.main_creature_context.update(&main_simulation.main_creature_context);
         main_simulation.main_food_context.update(&main_simulation.main_food_context);
+        main_simulation.inspector.update(&main_simulation.inspector);
 
         glfwSwapBuffers(main_simulation.window);
         glfwPollEvents();
     }
 }
 
-unsigned int init_shader(const char* vertex_shader_path, const char* frag_shader_path) {
+unsigned int init_shader(const char* vertex_shader_path, const char* frag_shader_path, mat4 projection) {
     unsigned int res = build_shader(vertex_shader_path, frag_shader_path);
     use_shader(res);
-    glUniformMatrix4fv(glGetUniformLocation(res, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ortho);
+    glUniformMatrix4fv(glGetUniformLocation(res, "projection"), 1, GL_FALSE, (GLfloat*)projection);
     return res;
 }
 
@@ -95,14 +111,17 @@ void CreateAndInitSimulation() {
     main_simulation.fullscreen = FULLSCREEN;
     init(&main_simulation);
     main_simulation.Run = &run;
-    main_simulation.shader_lib.creature_shader = init_shader("coloredvertexshader.vsh", "fragmentshader1.fsh");
+    main_simulation.shader_lib.creature_shader = init_shader("coloredvertexshader.vsh", "fragmentshader1.fsh", main_simulation.ortho);
     main_simulation.shader_lib.food_shader = main_simulation.shader_lib.creature_shader;
+    main_simulation.shader_lib.text_shader = init_shader("textvertexshader.vsh", "textfragmentshader.fsh", main_simulation.ui_projection);
+    main_simulation.shader_lib.inspector_panel_shader = init_shader("inspectorvertexshader.vsh", "inspectorfragmentshader.fsh", main_simulation.ui_projection);
+    main_simulation.text_vao = create_text_vao();
     main_simulation.vao_pool = create_vao_pool(VAO_POOL_EBO_CAPACITY, VAO_POOL_VBO_CAPACITY, 1);
     main_simulation.main_structural_innovation_context = create_structural_innovation_context();
     main_simulation.main_innovation_context = get_new_innovation_context();
     main_simulation.main_food_context = create_food_context(FOOD_COUNT, FOOD_RADIUS, FOOD_COOLDOWN, main_simulation.shader_lib.food_shader);
-    main_simulation.main_creature_context = create_creature_context(INITIAL_CREATURE_COUNT, &create_simple_creature_2, main_simulation.shader_lib.creature_shader);
-    
+    main_simulation.main_creature_context = create_creature_context(INITIAL_CREATURE_COUNT, &create_simple_creature, main_simulation.shader_lib.creature_shader);
+    main_simulation.inspector = create_inspector(main_simulation.shader_lib.inspector_panel_shader, main_simulation.shader_lib.text_shader);
     
 }
 
@@ -135,11 +154,61 @@ void processInput(GLFWwindow* window)
     }
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_I && action == GLFW_PRESS) { //toggle the inspector panel
+        main_simulation.inspector.target_creature = main_simulation.main_creature_context.creatures[0];
+        main_simulation.inspector.enabled = !main_simulation.inspector.enabled;
+    }
+}
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == 1) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        
+        mat4 pos;
+        glm_mat4_identity(pos);
+        vec3 t = { xpos, ypos, 0 };
+        glm_translate(pos, t);
+
+        mat4 comp1;
+        glm_mat4_inv(main_simulation.view, comp1);
+        glm_mat4_mul(comp1, main_simulation.ortho, comp1);
+        glm_mat4_mul(pos, comp1, comp1);
+
+        struct creature* closest_creature = NULL;
+        float closest = FLT_MAX;
+        for (int i = 0; i < main_simulation.main_creature_context.creatures_count; i++) {
+            struct creature* creature = main_simulation.main_creature_context.creatures[i];
+            if (creature->life_stage == ALIVE) {
+                float dist = mat4_distance_2d(comp1, creature->transform);
+                if (dist < 500 && dist < closest) {
+                    closest = dist;
+                    closest_creature = creature;
+                }
+            }
+        }
+        if (closest_creature != NULL) {
+            main_simulation.inspector.target_creature = closest_creature;
+            main_simulation.inspector.enabled = true;
+        }
+    }
+}
+
+void reset_shader_orthos() {//reset projection in certain shaders on window resize
+    use_shader(main_simulation.shader_lib.creature_shader);
+    glUniformMatrix4fv(glGetUniformLocation(main_simulation.shader_lib.creature_shader, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ortho);
+    use_shader(main_simulation.shader_lib.text_shader);
+    glUniformMatrix4fv(glGetUniformLocation(main_simulation.shader_lib.text_shader, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ui_projection);
+    use_shader(main_simulation.shader_lib.inspector_panel_shader);
+    glUniformMatrix4fv(glGetUniformLocation(main_simulation.shader_lib.inspector_panel_shader, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ui_projection);
+}
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
     glm_ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f, main_simulation.ortho);
+    glm_ortho(0.0f, (float)width, 0.0f, (float)height, -1.0f, 1.0f, main_simulation.ui_projection);
+    reset_shader_orthos();
     main_simulation.screen_width = width;
     main_simulation.screen_height = height;
 }

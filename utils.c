@@ -34,3 +34,34 @@ void get_translation_matrix(mat4 source, mat4 dest) {
 	new_mat[3][2] = source[3][2];
 	glm_mat4_copy(new_mat, dest);
 }
+
+float normalize(float range_min, float range_max, float value_min, float value_max, float value) {
+	return (value - value_min) / (value_max - value_min) * (range_max - range_min) + range_min;
+
+}
+
+float quick_magnitude_2d(mat4 transform1, mat4 transform2) {
+	float delta_x = transform2[3][0] - transform1[3][0];
+	float delta_y = transform2[3][1] - transform1[3][1];
+	return (delta_x * delta_x) + (delta_y * delta_y);
+}
+
+float mat4_distance_2d(mat4 transform1, mat4 transform2) {
+	float delta_x = transform2[3][0] - transform1[3][0];
+	float delta_y = transform2[3][1] - transform1[3][1];
+	return sqrtf((delta_x * delta_x) + (delta_y * delta_y));
+}
+
+char* float_to_string(float value) {
+	int len = snprintf(NULL, 0, "%f", value);
+	char* dest = malloc(len + 1);
+	snprintf(dest, len + 1, "%f", value);
+	return dest;
+}
+
+char* int_to_string(int value) {
+	int len = snprintf(NULL, 0, "%d", value);
+	char* dest = malloc(len + 1);
+	snprintf(dest, len + 1, "%d", value);
+	return dest;
+}
