@@ -93,6 +93,9 @@
     <ClCompile Include="inspector.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="abysscontext.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="innovation.h">
@@ -173,6 +176,9 @@
     <ClInclude Include="inspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="abysscontext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertexshader1.vsh">
@@ -197,6 +203,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="inspectorvertexshader.vsh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="indivvertexshader.vsh">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

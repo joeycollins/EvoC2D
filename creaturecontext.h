@@ -9,6 +9,7 @@ struct creature_context {
 	unsigned int shader;
 	int creatures_capacity;
 	int creatures_count;
+	int alive_creatures;
 	struct creature** creatures; 
 	void (*update)(struct creature_context*);
 };

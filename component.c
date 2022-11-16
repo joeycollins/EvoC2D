@@ -34,8 +34,8 @@ struct component create_food_sensor_component() {
 		.io_type = INPUT,
 		.activity_type = FOOD_SENSOR,
 		.io_component = {
-			.vector_size = 2,
-			.ids = malloc(sizeof(int)*2),
+			.vector_size = 3,
+			.ids = malloc(sizeof(int)*3),
 			.activity  = &food_sensor
 		},
 	};
@@ -58,28 +58,14 @@ struct component create_rotator_component() {
 	return rot;
 }
 
-struct component create_gps_component() {
-	struct component gps = {
-		.children_count = 0,
-		.io_type = INPUT,
-		.activity_type = GPS,
-		.io_component = {
-			.vector_size = 2,
-			.ids = malloc(sizeof(int) * 2),
-			.activity = &get_gps
-		}
-	};
-	strcpy(gps.name, "GPS");
-	return gps;
-}
 
 struct component create_asex_repro_component() {
 	struct component rot = {
 		.children_count = 0,
 		.io_type = OUTPUT,
 		.activity_type = ASEX_REPRO,
-		.cooldown = 7,
-		.cooldown_timer = 7,
+		.cooldown = 20,
+		.cooldown_timer = 20,
 		.io_component = {
 			.vector_size = 1,
 			.ids = malloc(sizeof(int) * 1),
@@ -112,14 +98,30 @@ struct component create_creature_sensor_component() {
 		.io_type = INPUT,
 		.activity_type = CREATURE_SENSOR,
 		.io_component = {
-			.vector_size = 2,
-			.ids = malloc(sizeof(int) * 2),
+			.vector_size = 3,
+			.ids = malloc(sizeof(int) * 3),
 			.activity = &creature_sensor
 		}
 	};
 	strcpy(cs.name, "Creature Sensor");
 	return cs;
 }
+
+struct component create_abyss_sensor_component() {
+	struct component cs = {
+		.children_count = 0,
+		.io_type = INPUT,
+		.activity_type = ABYSS_SENSOR,
+		.io_component = {
+			.vector_size = 3,
+			.ids = malloc(sizeof(int) * 3),
+			.activity = &abyss_sensor
+		}
+	};
+	strcpy(cs.name, "Abyss Sensor");
+	return cs;
+}
+
 
 struct component create_sexual_reproduction_component() {
 	struct component sr = {
@@ -129,15 +131,14 @@ struct component create_sexual_reproduction_component() {
 		.cooldown = 25,
 		.cooldown_timer = 25,
 		.io_component = {
-			.vector_size = 1,
-			.ids = malloc(sizeof(int) * 1),
+			.vector_size = 0,
+			.ids = malloc(sizeof(int) * 0),
 			.activity = &sexual_reproduction
 		}
 	};
 	strcpy(sr.name, "Sexual Reproduction");
 	return sr;
 }
-
 
 struct component create_component(enum activity_type activity_type) {
 	struct component res;
@@ -151,9 +152,6 @@ struct component create_component(enum activity_type activity_type) {
 	case FOOD_SENSOR:
 		res = create_food_sensor_component();
 		break;
-	case GPS:
-		res = create_gps_component();
-		break;
 	case ASEX_REPRO:
 		res = create_asex_repro_component();
 		break;
@@ -165,6 +163,9 @@ struct component create_component(enum activity_type activity_type) {
 		break;
 	case SEXUAL_REPRO:
 		res = create_sexual_reproduction_component();
+		break;
+	case ABYSS_SENSOR:
+		res = create_abyss_sensor_component();
 		break;
 	default:
 		res = create_thruster_component();

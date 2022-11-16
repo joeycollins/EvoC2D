@@ -14,25 +14,25 @@ struct genome create_genome(struct creature* creature) {
 		.connections = {
 			.count = 0,
 			.capacity = INITIAL_CONNECTION_CAPACITY,
-			.buffer = calloc(INITIAL_CONNECTION_CAPACITY, sizeof(struct connection)),
+			.buffer = malloc(INITIAL_CONNECTION_CAPACITY * sizeof(struct connection)),
 			.realloc_amt = INITIAL_CONNECTION_CAPACITY
 		},
 		.input_genes = {
 			.count = 0,
 			.capacity = input_genes_count,
-			.buffer = calloc(input_genes_count, sizeof(struct gene*)),
+			.buffer = malloc(input_genes_count * sizeof(struct gene*)),
 			.realloc_amt = input_genes_count
 		},
 		.hidden_genes = { 
 			.count = 0,
 			.capacity = INITIAL_HIDDEN_CAPACITY,
-			.buffer = calloc(INITIAL_HIDDEN_CAPACITY, sizeof(struct gene*)),
-			.realloc_amt = 1
+			.buffer = malloc(INITIAL_HIDDEN_CAPACITY * sizeof(struct gene*)),
+			.realloc_amt = 100
 		},
 		.output_genes = {
 			.count = 0,
 			.capacity = output_genes_count,
-			.buffer = calloc(output_genes_count, sizeof(struct gene*)),
+			.buffer = malloc(output_genes_count * sizeof(struct gene*)),
 			.realloc_amt = output_genes_count
 		},
 		.layers = 1,
@@ -116,6 +116,9 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 		}
 		else {
 			gene = genome->output_genes.buffer[i - hidden_count];
+			if (gene->component->io_component.vector_size == 0) { //skip 0 vector outputs
+				continue;
+			}
 		}
 		if (gene->distance <= first_gene->distance) {
 			continue;
@@ -155,9 +158,6 @@ void mutate_add_connection(struct genome* genome, struct innovation_context* con
 		.split = false
 	};
 	sequence_add_connection(&genome->connections, new_connection);
-
-	//update gene info
-	//second_gene->active_incoming_connections++;
 }
 
 bool contains_int(int* sequence, int count, int element) {
@@ -258,7 +258,6 @@ void mutate_add_gene(struct genome* genome, struct innovation_context* context) 
 	sequence_add_connection(&genome->connections, new_connection_1);
 	sequence_add_connection(&genome->connections, new_connection_2);
 
-	//new_gene_addr->active_incoming_connections++;
 }
 
 void mutate(struct genome* genome, struct innovation_context* context, float add_connection_chance,
@@ -342,10 +341,7 @@ struct connection* add_bred_connection(struct genome* base, int innovation_numbe
 		.split = split,
 		.weight = weight
 	};
-	/*
-	if (enabled) {
-		second_gene->active_incoming_connections++;
-	}*/
+	
 	return sequence_add_connection(&base->connections, new_connection);
 }
 /*
@@ -418,6 +414,9 @@ void copy_genome(struct genome* genome, struct genome* dest) {
 		int second_dist = connection->second_gene->distance;
 		struct gene* first_addr = add_bred_gene(dest, first_gene_id, first_dist);
 		struct gene* second_addr = add_bred_gene(dest, second_gene_id, second_dist);
+		if (first_addr == NULL || second_addr == NULL) {
+			perror("This shouldnt happen ever");
+		}
 		add_bred_connection(dest, connection_innovation_number, first_addr, second_addr,
 			connection->weight, connection->enabled, connection->split);
 	}

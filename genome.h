@@ -5,8 +5,8 @@
 #include "gene.h"
 #include <stdbool.h>
 
-#define INITIAL_CONNECTION_CAPACITY 50
-#define INITIAL_HIDDEN_CAPACITY 30
+#define INITIAL_CONNECTION_CAPACITY 700
+#define INITIAL_HIDDEN_CAPACITY 300
 
 struct creature; struct innovation_context; struct linked_list;
 

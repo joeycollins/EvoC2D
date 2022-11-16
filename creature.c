@@ -3,7 +3,6 @@
 #include "innovation.h"
 #include "simulation.h"
 #include "creaturecontext.h"
-#include "render.h"
 #include "settings.h"
 #include "utils.h"
 #include <string.h>
@@ -38,11 +37,12 @@ Create a new creature with life_span and memory for # of component_count, which 
 struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation, int generation) {
 	struct creature new_creature = {
 		.effective_input_count = 0,
-		.effective_output_count  = 0,
+		.effective_output_count = 0,
 		.life_span = life_span,
 		.remaining_life_span = life_span,
 		.life_stage = ALIVE,
 		.generation = generation,
+		.predator = false,
 		.components = {
 			.capacity = component_count,
 			.count = 0,
@@ -75,9 +75,7 @@ struct int_sequence get_origin_key() {
 }
 
 void copy_io_ids(struct component* component, struct int_sequence ids) {
-	for (int i = 0; i < component->io_component.vector_size; i++) {
-		component->io_component.ids[i] = ids.buffer[i];
-	}
+	memcpy(component->io_component.ids, ids.buffer, sizeof(int) * ids.count);
 }
 
 void assign_key(struct component* component, struct int_sequence key) {
@@ -174,10 +172,9 @@ void position_component_by_key(struct creature* creature, struct component* comp
 
 
 void create_simple_creature(struct creature* creature_base) {
-	float life_span = 15;
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", life_span, 4, translation, 0);
+	(*creature_base) = create_creature("fernando", INITIAL_CREATURE_LIFE_SPAN, 5, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -196,12 +193,22 @@ void create_simple_creature(struct creature* creature_base) {
 	attach_collider(sex_addr, true);
 	position_component_at(creature_base, sex_addr, thruster_addr, 1, &main_simulation.main_structural_innovation_context);
 	
-
+	/*
 	struct component cresen = create_component(CREATURE_SENSOR);
 	struct component* cresen_addr = add_component(creature_base, cresen);
 	attach_collider(cresen_addr, true);
 	position_component_at(creature_base, cresen_addr, sex_addr, 3, &main_simulation.main_structural_innovation_context);
-	
+	*/
+	struct component asensor = create_component(ABYSS_SENSOR);
+	struct component* asensor_addr = add_component(creature_base, asensor);
+	attach_collider(asensor_addr, true);
+	position_component_at(creature_base, asensor_addr, sex_addr, -1, &main_simulation.main_structural_innovation_context);
+	/*
+	struct component asex = create_component(ASEX_REPRO);
+	struct component* asex_addr = add_component(creature_base, asex);
+	attach_collider(asex_addr, true);
+	position_component_at(creature_base, asex_addr, thruster_addr, -1, &main_simulation.main_structural_innovation_context);
+	*/
 	assign_creature_local_positions(origin_addr, 0, 0, 0); // assign local position since we wont create a shape for all creatures spawned
 	creature_base->genome = create_genome(creature_base);
 	initial_mutate(&creature_base->genome, &main_simulation.main_innovation_context);
@@ -209,10 +216,9 @@ void create_simple_creature(struct creature* creature_base) {
 }
 
 void create_simple_creature_2(struct creature* creature_base) {
-	float life_span = 5;
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", life_span, 5, translation, 0);
+	(*creature_base) = create_creature("fernando", INITIAL_CREATURE_LIFE_SPAN, 5, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -249,6 +255,13 @@ void create_simple_creature_2(struct creature* creature_base) {
 
 
 void free_creature(struct creature* creature) {
+	free_linked_network(&creature->network);
+	free_genome(&creature->genome);
+	for (int i = 0; i < creature->components.count; i++) {
+		free(creature->components.buffer[i].genes.buffer);
+		free(creature->components.buffer[i].key.buffer);
+		free(creature->components.buffer[i].io_component.ids);
+	}
 	free(creature->components.buffer);
 }
 
@@ -302,17 +315,14 @@ void breed_creature(struct creature* FATHER_creature, struct creature* mother_cr
 		dest, true);
 	if (mutate_structurally == 1) {
 		mutate_structural(dest);
-		struct shape creature_shape = create_creature_model(dest);
-		dest->rendering_info = add_shape_to_pool(&main_simulation.vao_pool, creature_shape);
-		free_shape(&creature_shape);
 	}
-	else {
-		dest->rendering_info = FATHER_creature->rendering_info;
-	}
+
 	assign_creature_local_positions(dest->origin, 0.0f, 0.0f, 0.0f);
 	dest->genome = create_genome(dest);
 	breed_genomes(&FATHER_creature->genome, &mother_creature->genome, &dest->genome);
-	mutate(&dest->genome, &main_simulation.main_innovation_context, 0.7f, 0.5f, 0.2f);
+	for (int i = 0; i < rand() % 3; i++) {
+		mutate(&dest->genome, &main_simulation.main_innovation_context, MUTATE_CONNECTION_CHANCE, MUTATE_GENE_CHANCE, MUTATE_CONNECTION_STATE_CHANCE);
+	}
 	dest->network = create_linked_network(&dest->genome);
 }
 
@@ -385,25 +395,13 @@ void breed_creature_asex(struct creature* mother, float life_span) {
 	struct creature* dest = add_to_context(&main_simulation.main_creature_context);
 	mat4 translation;
 	get_translation_matrix(mother->transform, translation);
-	int mutate_structurally = 0;
-	if (rand_flt() < STRUCTURAL_MUTATION_CHANCE) {
-		mutate_structurally = 1;
-	}
-	*dest = create_creature(mother->name, life_span, mother->components.count + mutate_structurally, translation, mother->generation + 1);
+	
+	*dest = create_creature(mother->name, life_span, mother->components.count, translation, mother->generation + 1);
 	breed_creature_asex_rec(mother->origin, dest, life_span);
-	if (mutate_structurally == 1) {
-		mutate_structural(dest);
-		struct shape creature_shape = create_creature_model(dest);
-		dest->rendering_info = add_shape_to_pool(&main_simulation.vao_pool, creature_shape);
-		free_shape(&creature_shape);
-	}
-	else {
-		dest->rendering_info = mother->rendering_info;
-	}
 	assign_creature_local_positions(dest->origin, 0.0f, 0.0f, 0.0f);
 	dest->genome = create_genome(dest);
 	copy_genome(&mother->genome, &dest->genome);
-	mutate(&dest->genome, &main_simulation.main_innovation_context, 0.7f, 0.5f, 0.2f);
+	mutate(&dest->genome, &main_simulation.main_innovation_context, MUTATE_CONNECTION_CHANCE, MUTATE_GENE_CHANCE, MUTATE_CONNECTION_STATE_CHANCE);
 	dest->network = create_linked_network(&dest->genome);
 }
 
@@ -435,6 +433,15 @@ void evaluate_creature_collision(struct creature* creature) {
 		if (component->collider.enabled) {
 			vec2 pos;
 			get_component_position(component, pos);
+			for (int j = 0; j < main_simulation.main_abyss_context.abysses_count; j++) {
+				bool is_coll = component->collider.collision_fn(pos[0], pos[1], COMPONENT_RADIUS * creature_scale_factor,
+					main_simulation.main_abyss_context.abysses[j].transform[3][0], main_simulation.main_abyss_context.abysses[j].transform[3][1], 400.0f);
+				if (is_coll) {
+					creature->remaining_life_span = -100.0f;
+					return;
+				}
+			}
+
 			for (int j = 0; j < main_simulation.main_food_context.food_count; j++) {
 				if (!main_simulation.main_food_context.food[j].alive) { continue; }
 				bool is_coll = component->collider.collision_fn(pos[0], pos[1], COMPONENT_RADIUS * creature_scale_factor,
@@ -442,8 +449,10 @@ void evaluate_creature_collision(struct creature* creature) {
 				if (is_coll) {
 					creature->remaining_life_span += 5.0f;
 					main_simulation.main_food_context.food[j].alive = false;
+					break;
 				}
 			}
+
 		}
 	}
 }
@@ -465,7 +474,9 @@ bool evaluate_creature_life(struct creature* creature) {
 void update_creature(struct creature* creature) {
 	evaluate_creature_collision(creature);
 	evaluate_creature_network(creature);
-	evaluate_creature_life(creature);
+	if (!evaluate_creature_life(creature)) {
+		main_simulation.main_creature_context.alive_creatures--;
+	}
 }
 
 void assign_creature_local_positions(struct component* component, float offset_x, float offset_y, float offset_angle) {

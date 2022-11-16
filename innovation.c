@@ -1,7 +1,7 @@
 #include "innovation.h"
 #include "sequence.h"
 #include <stdlib.h>
-
+#include <string.h>
 struct innovation_context get_new_innovation_context() {
 	struct innovation_context new_context = {
 		.innovation_number = 1,
@@ -94,13 +94,10 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 		vector_count = 2;
 		break;
 	case FOOD_SENSOR:
-		vector_count = 2;
+		vector_count = 3;
 		break;
 	case ROTATOR:
 		vector_count = 1;
-		break;
-	case GPS:
-		vector_count = 2;
 		break;
 	case ASEX_REPRO:
 		vector_count = 1;
@@ -109,10 +106,13 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 		vector_count = 1;
 		break;
 	case CREATURE_SENSOR:
-		vector_count = 2;
+		vector_count = 3;
 		break;
 	case SEXUAL_REPRO:
-		vector_count = 1;
+		vector_count = 0;
+		break;
+	case ABYSS_SENSOR:
+		vector_count = 3;
 		break;
 	default:
 		vector_count = 1;
@@ -124,7 +124,12 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 	
 	struct add_structural_innovation new_innovation = {
 		.activity_type = activity_type,
-		.key = key,
+		.key = {
+			.count = key.count,
+			.capacity = key.capacity,
+			.buffer = malloc(sizeof(int) * key.count),
+			.realloc_amt = 0
+		},
 		.ids = {
 			.count = vector_count,
 			.capacity =vector_count,
@@ -134,9 +139,12 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 		.color = {r, g, b}
 	};
 
+
 	for (int i = 0; i < vector_count; i++) {
 		new_innovation.ids.buffer[i] = get_new_structural_innovation_number(context);
 	}
+
+	memcpy(new_innovation.key.buffer, key.buffer, sizeof(int) * key.count);
 
 	sequence_add_structural_innovation(&context->add_structural_innovations, new_innovation);
 	return new_innovation;

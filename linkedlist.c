@@ -57,9 +57,9 @@ void* list_pop_at(struct linked_list* list, int index) {
 
 
 void free_list(struct linked_list* list) {
-	if (list->head == NULL) {
+	/*if (list->head == NULL) {
 		return;
-	}
+	}*/
 	struct link* current = list->head;
 	for (int i = 0; i < list->count; i++) {
 		struct link* next = current->next;

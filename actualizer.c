@@ -12,7 +12,7 @@ void thruster(struct component* component, float* value) {
 	vec3 vec = {
 		value[0], value[1], 0.0f
 	};
-	glm_vec3_scale(vec, main_simulation.delta_time, vec);
+	glm_vec3_scale(vec, main_simulation.delta_time * 8, vec);
 	glm_translate(component->this_creature->transform, vec);
 }
 
@@ -23,12 +23,13 @@ void rotator(struct component* component, float* value) {
 }
 
 void asexual_reproduction(struct component* component, float* value) {
-	float gate = 0.9f;
+	float gate = 0.0f;
 	component->cooldown_timer -= main_simulation.delta_time;
-	if (*value > gate && component->cooldown_timer < 0) {
+	if (*value > gate && component->cooldown_timer < 0 && main_simulation.main_creature_context.alive_creatures < MAX_POPULATION) {
 		component->this_creature->reproduce_asex(component->this_creature, 15);
-		component->this_creature->life_span -= 15;
+		component->this_creature->life_span -= 10;
 		component->cooldown_timer = component->cooldown;
+		main_simulation.main_creature_context.alive_creatures++;
 		//some sort of life donator
 	}
 }
@@ -36,7 +37,7 @@ void asexual_reproduction(struct component* component, float* value) {
 
 struct creature* get_closest_creature(struct creature_context* context, struct creature* this_creature) {
 	struct creature* closest_creature = NULL;
-	float closest_mag = FLT_MAX;
+	float closest_mag = FLT_MIN;
 	for (int i = 0; i < context->creatures_count; i++) {
 		struct creature* creature = context->creatures[i];
 		if (creature->life_stage != ALIVE) {
@@ -45,9 +46,10 @@ struct creature* get_closest_creature(struct creature_context* context, struct c
 		if (creature == this_creature) {
 			continue;
 		}
-		float mag = quick_magnitude_2d(this_creature->transform,
-			creature->transform);
-		if (mag < closest_mag) {
+		float mag = creature->remaining_life_span;
+		//float mag = quick_magnitude_2d(this_creature->transform,
+		//	creature->transform);
+		if (mag > closest_mag) {
 			closest_mag = mag;
 			closest_creature = creature;
 		}
@@ -56,16 +58,19 @@ struct creature* get_closest_creature(struct creature_context* context, struct c
 }
 
 void sexual_reproduction(struct component* component, float* value) {
-	float gate = 0.0f;
-	float tdist = 300;
+	float gate = -100.0f;
+	float tdist = 30000;
 	component->cooldown_timer -= main_simulation.delta_time;
-	if (*value > gate && component->cooldown_timer < 0) {
+	if (component->cooldown_timer < 0 && main_simulation.main_creature_context.alive_creatures < MAX_POPULATION) {
 		struct creature* mate = get_closest_creature(&main_simulation.main_creature_context, component->this_creature);
 		if (mate == NULL) { return; }
 		float dist = mat4_distance_2d(component->this_creature->transform, mate->transform);
 		if (dist < tdist) {
 			component->this_creature->reproduce_sex(component->this_creature, mate, 15);
+			component->this_creature->reproduce_sex(component->this_creature, mate, 15);
+			component->this_creature->reproduce_sex(component->this_creature, mate, 15);
 			component->cooldown_timer = component->cooldown;
+			main_simulation.main_creature_context.alive_creatures++;
 		}
 	}
 }

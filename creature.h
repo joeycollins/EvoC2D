@@ -7,7 +7,7 @@
 #include "linkednetwork.h"
 #include "render.h"
 #include <cglm/mat4.h>
-
+#include <stdbool.h>
 #define INITIAL_IO_CAPACITY 10
 
 struct creature_context;
@@ -24,6 +24,7 @@ struct creature {
 	char name[16];
 	mat4 transform;
 	int generation;
+	bool predator;
 	float life_span;
 	float remaining_life_span;
 	enum life_stage life_stage;
@@ -35,7 +36,6 @@ struct creature {
 	struct component* origin; //growth origin
 	struct genome genome;
 	struct linked_network network;
-	struct vao_pool_rendering_info rendering_info;
 	struct creature_context* this_context;
 	//functionality built into all creatures; sexual reproduction is controlled by a component
 	void (*reproduce_asex)(struct creature*, float);

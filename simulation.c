@@ -93,6 +93,8 @@ void run() {
         //updates
         main_simulation.main_creature_context.update(&main_simulation.main_creature_context);
         main_simulation.main_food_context.update(&main_simulation.main_food_context);
+        main_simulation.main_abyss_context.update(&main_simulation.main_abyss_context);
+        //ui
         main_simulation.inspector.update(&main_simulation.inspector);
 
         glfwSwapBuffers(main_simulation.window);
@@ -111,8 +113,9 @@ void CreateAndInitSimulation() {
     main_simulation.fullscreen = FULLSCREEN;
     init(&main_simulation);
     main_simulation.Run = &run;
-    main_simulation.shader_lib.creature_shader = init_shader("coloredvertexshader.vsh", "fragmentshader1.fsh", main_simulation.ortho);
-    main_simulation.shader_lib.food_shader = main_simulation.shader_lib.creature_shader;
+    main_simulation.draw_objects = true;
+    main_simulation.shader_lib.creature_shader = init_shader("indivvertexshader.vsh", "fragmentshader1.fsh", main_simulation.ortho);
+    main_simulation.shader_lib.food_shader = init_shader("coloredvertexshader.vsh", "fragmentshader1.fsh", main_simulation.ortho);
     main_simulation.shader_lib.text_shader = init_shader("textvertexshader.vsh", "textfragmentshader.fsh", main_simulation.ui_projection);
     main_simulation.shader_lib.inspector_panel_shader = init_shader("inspectorvertexshader.vsh", "inspectorfragmentshader.fsh", main_simulation.ui_projection);
     main_simulation.text_vao = create_text_vao();
@@ -122,7 +125,8 @@ void CreateAndInitSimulation() {
     main_simulation.main_food_context = create_food_context(FOOD_COUNT, FOOD_RADIUS, FOOD_COOLDOWN, main_simulation.shader_lib.food_shader);
     main_simulation.main_creature_context = create_creature_context(INITIAL_CREATURE_COUNT, &create_simple_creature, main_simulation.shader_lib.creature_shader);
     main_simulation.inspector = create_inspector(main_simulation.shader_lib.inspector_panel_shader, main_simulation.shader_lib.text_shader);
-    
+    main_simulation.main_abyss_context = create_abyss_context(ABYSS_COUNT, main_simulation.shader_lib.food_shader);
+    main_simulation.creature_vao = create_individual_draw_mode_vao();
 }
 
 
@@ -158,6 +162,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_I && action == GLFW_PRESS) { //toggle the inspector panel
         main_simulation.inspector.target_creature = main_simulation.main_creature_context.creatures[0];
         main_simulation.inspector.enabled = !main_simulation.inspector.enabled;
+    }
+    else if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
+        main_simulation.draw_objects = !main_simulation.draw_objects;
     }
 }
 

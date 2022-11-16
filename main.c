@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <time.h>
 #include "globals.h"
-#include "evoshader.h"
 #include "simulation.h"
 /*
 Quick architecture overview:

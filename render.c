@@ -60,6 +60,33 @@ void expand_vao_pool(struct vao_pool* vao_pool) {
     vao_pool->count++;
 }
 
+struct vao create_individual_draw_mode_vao() {
+    unsigned int VBO, EBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+    bind_vao(VAO);
+    struct shape component_shape = create_indiv_creature_model();
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * component_shape.vertices_count, component_shape.vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * component_shape.indices_count, component_shape.indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    free_shape(&component_shape);
+
+    struct vao res = {
+        .vao = VAO,
+        .ebo = EBO,
+        .vbo = VBO,
+    };
+    return res;
+}
+
 struct vao create_text_vao() {
     unsigned int VAO, VBO;
     glGenVertexArrays(1, &VAO);
@@ -96,7 +123,9 @@ struct vao_pool_rendering_info add_shape_to_pool(struct vao_pool* vao_pool, stru
     }
     bind_vao(current_vao->vao);
     struct vao_pool_rendering_info info = {
-        .vao = current_vao->vao
+        .vao = current_vao->vao,
+        .ebo = current_vao->ebo,
+        .vbo = current_vao->vbo
     };
     
     glBindBuffer(GL_ARRAY_BUFFER, current_vao->vbo);
@@ -123,6 +152,7 @@ struct vao_pool_rendering_info add_shape_to_pool(struct vao_pool* vao_pool, stru
 
 void draw_from_pool_ebo(struct vao_pool_rendering_info info) {
     bind_vao(info.vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.ebo);
     glDrawElements(GL_TRIANGLES, info.ebo_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * info.ebo_offset));
 }
 
