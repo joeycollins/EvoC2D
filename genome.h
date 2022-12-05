@@ -36,4 +36,6 @@ void breed_genomes(struct genome* father, struct genome* mother, struct genome* 
 
 void copy_genome(struct genome* genome, struct genome* dest);
 
+void mutate_localized(struct genome* genome, struct component* component, struct innovation_context* context);
+
 #endif

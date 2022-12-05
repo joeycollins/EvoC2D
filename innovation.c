@@ -1,5 +1,7 @@
 #include "innovation.h"
 #include "sequence.h"
+#include "component.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <string.h>
 struct innovation_context get_new_innovation_context() {
@@ -60,12 +62,6 @@ int get_new_structural_innovation_number(struct structural_innovation_context* c
 	return new_number;
 }
 
-void get_random_color(float* rdest, float* gdest, float* bdest) {
-	float x = rand(), y = rand(), z = rand();
-	*rdest = x / RAND_MAX;
-	*gdest = y / RAND_MAX;
-	*bdest = z / RAND_MAX;
-}
 
 bool keys_are_identical(struct int_sequence* key1, struct int_sequence* key2) {
 	if (key1->count != key2->count) { return false; }
@@ -78,7 +74,9 @@ bool keys_are_identical(struct int_sequence* key1, struct int_sequence* key2) {
 }
 
 struct add_structural_innovation get_add_structural_innovation(struct structural_innovation_context* context,
-	enum activity_type activity_type, struct int_sequence key) {
+	struct component* component, struct int_sequence key) {
+
+	enum activity_type activity_type = component->activity_type;
 
 	for (int i = 0; i < context->add_structural_innovations.count; i++) {
 		if (activity_type == context->add_structural_innovations.buffer[i].activity_type) {
@@ -88,36 +86,8 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 		}
 	}
 
-	int vector_count;
-	switch (activity_type) {
-	case THRUSTER:
-		vector_count = 2;
-		break;
-	case FOOD_SENSOR:
-		vector_count = 3;
-		break;
-	case ROTATOR:
-		vector_count = 1;
-		break;
-	case ASEX_REPRO:
-		vector_count = 1;
-		break;
-	case ENERGY_METER:
-		vector_count = 1;
-		break;
-	case CREATURE_SENSOR:
-		vector_count = 3;
-		break;
-	case SEXUAL_REPRO:
-		vector_count = 0;
-		break;
-	case ABYSS_SENSOR:
-		vector_count = 3;
-		break;
-	default:
-		vector_count = 1;
-		break;
-	}
+	int vector_count = component->io_component.vector_size;
+	
 	
 	float r, g, b;
 	get_random_color(&r, &b, &g); //get a new color
@@ -139,6 +109,7 @@ struct add_structural_innovation get_add_structural_innovation(struct structural
 		.color = {r, g, b}
 	};
 
+	new_innovation.structural_innovation_number = get_new_structural_innovation_number(context);
 
 	for (int i = 0; i < vector_count; i++) {
 		new_innovation.ids.buffer[i] = get_new_structural_innovation_number(context);

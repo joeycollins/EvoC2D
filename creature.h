@@ -22,6 +22,7 @@ enum life_stage {
 
 struct creature {
 	char name[16];
+	float multiplicative_color[3]; //rgb thats added to each component color, used mainly to see predator creatures
 	mat4 transform;
 	int generation;
 	bool predator;

@@ -421,3 +421,15 @@ void copy_genome(struct genome* genome, struct genome* dest) {
 			connection->weight, connection->enabled, connection->split);
 	}
 }
+
+void mutate_add_connections_localized(struct genome* genome, struct component* component, struct innovation_context* context) {
+	for (int i = 0; i < component->genes.count; i++) {
+		struct gene* gene = component->genes.buffer + i;
+		
+
+	}
+}
+
+void mutate_localized(struct genome* genome, struct component* component, struct innovation_context* context) {
+
+}

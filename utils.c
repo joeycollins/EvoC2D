@@ -65,3 +65,10 @@ char* int_to_string(int value) {
 	snprintf(dest, len + 1, "%d", value);
 	return dest;
 }
+
+void get_random_color(float* rdest, float* gdest, float* bdest) {
+	float x = rand(), y = rand(), z = rand();
+	*rdest = x / RAND_MAX;
+	*gdest = y / RAND_MAX;
+	*bdest = z / RAND_MAX;
+}

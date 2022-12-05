@@ -6,6 +6,8 @@
 
 #include "intsequence.h"
 
+struct component;
+
 struct add_connection_innovation {
 	int first_gene_id;
 	int second_gene_id;
@@ -20,8 +22,9 @@ struct add_gene_innovation {
 
 struct add_structural_innovation {
 	enum activity_type activity_type;
-	struct int_sequence key;
-	struct int_sequence ids;
+	int structural_innovation_number; //id used to match components
+	struct int_sequence key; //position on the creature
+	struct int_sequence ids; //ids applied to the genes
 	float color[3];
 };
 
@@ -63,7 +66,7 @@ struct structural_innovation_context create_structural_innovation_context();
 void free_structural_innovation_context(struct structural_innovation_context* context);
 
 struct add_structural_innovation get_add_structural_innovation(struct structural_innovation_context* context,
-	enum activity_type activity_type, struct int_sequence key);
+	struct component* component, struct int_sequence key);
 
 void free_innovation_context(struct innovation_context* context);
 

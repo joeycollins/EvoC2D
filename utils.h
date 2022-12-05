@@ -13,4 +13,5 @@ float quick_magnitude_2d(mat4 transform1, mat4 transform2);
 float mat4_distance_2d(mat4 transform1, mat4 transform2);
 char* int_to_string(int value);
 char* float_to_string(float value);
+void get_random_color(float* rdest, float* gdest, float* bdest);
 #endif

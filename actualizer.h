@@ -11,4 +11,6 @@ void asexual_reproduction(struct component* component, float* value);
 
 void sexual_reproduction(struct component* component, float* value);
 
+void do_fangs(struct component* component, float* value);
+
 #endif

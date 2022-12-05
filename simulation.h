@@ -15,6 +15,12 @@
 
 struct organism; struct GLFWwindow; typedef struct GLFWwindow GLFWwindow;
 
+enum window_mode {
+	FULLSCREEN = 0,
+	WINDOWED_FULLSCREEN = 1,
+	WINDOWED = 2
+};
+
 //Singleton that manages entity memory, global variables, delta time etc
 struct Simulation {
 	float delta_time;
@@ -27,7 +33,7 @@ struct Simulation {
 	struct inspector inspector;
 	struct food_context main_food_context;
 	void(*Run)(void);
-	bool fullscreen;
+	enum window_mode window_mode;
 	unsigned int screen_width;
 	unsigned int screen_height;
 	mat4 view;

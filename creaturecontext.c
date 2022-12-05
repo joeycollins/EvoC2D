@@ -39,10 +39,17 @@ void render_creature_indiv(struct creature* creature, unsigned int shader) {
 }
 
 void render_creature_indiv_rec(struct component* component, mat4 transform, unsigned int shader, float radius, float offset_angle){
+
+    struct creature* this_creature = component->this_creature;
+    float draw_color[3] = { this_creature->multiplicative_color[0] * component->color[0],
+        this_creature->multiplicative_color[1] * component->color[1],
+        this_creature->multiplicative_color[2] * component->color[2] };
+
+
     unsigned int uniform_loc = glGetUniformLocation(shader, "transform");
     glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, transform);
     uniform_loc = glGetUniformLocation(shader, "color");
-    glUniform3fv(uniform_loc, 1, component->color);
+    glUniform3fv(uniform_loc, 1, draw_color);
     glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * 3));
 
     for (int i = 0; i < MAX_CHILDREN; i++) {
@@ -65,7 +72,7 @@ void render_creature_indiv_rec(struct component* component, mat4 transform, unsi
             uniform_loc = glGetUniformLocation(shader, "transform");
             glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, joint_transform);
             uniform_loc = glGetUniformLocation(shader, "color");
-            glUniform3fv(uniform_loc, 1, component->color);
+            glUniform3fv(uniform_loc, 1, draw_color);
             glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
             render_creature_indiv_rec(component->children[i], new_transform, shader, radius, (float)(angle + M_PI));

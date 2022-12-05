@@ -13,6 +13,13 @@ void set_child_exists_array(bool *dest) {
 	}
 }
 
+void make_predator(struct creature* creature) {
+	creature->predator = true;
+	creature->multiplicative_color[0] = 3.0f; //increase r
+	creature->multiplicative_color[1] = 0.25f;
+	creature->multiplicative_color[2] = 0.25f;
+}
+
 struct component create_thruster_component() {
 	struct component nthruster = {
 		.children_count = 0,
@@ -22,7 +29,8 @@ struct component create_thruster_component() {
 			.vector_size = 2,
 			.ids = malloc(sizeof(int) * 2),
 			.activity = &thruster
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(nthruster.name, "Thruster");
 	return nthruster;
@@ -38,6 +46,7 @@ struct component create_food_sensor_component() {
 			.ids = malloc(sizeof(int)*3),
 			.activity  = &food_sensor
 		},
+		.evolution_effect = NULL
 	};
 	strcpy(sensor.name, "Food Sensor");
 	return sensor;
@@ -52,7 +61,8 @@ struct component create_rotator_component() {
 			.vector_size = 1,
 			.ids = malloc(sizeof(int) * 1),
 			.activity = &rotator
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(rot.name, "Rotator");
 	return rot;
@@ -67,10 +77,11 @@ struct component create_asex_repro_component() {
 		.cooldown = 20,
 		.cooldown_timer = 20,
 		.io_component = {
-			.vector_size = 1,
-			.ids = malloc(sizeof(int) * 1),
+			.vector_size = 0,
+			.ids = malloc(sizeof(int) * 0),
 			.activity = &asexual_reproduction
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(rot.name, "Asexual Reproduction");
 	return rot;
@@ -86,7 +97,8 @@ struct component create_energy_meter_component() {
 			.vector_size = 1,
 			.ids = malloc(sizeof(int) * 1),
 			.activity = &get_eps
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(rot.name, "Energy Meter");
 	return rot;
@@ -101,7 +113,8 @@ struct component create_creature_sensor_component() {
 			.vector_size = 3,
 			.ids = malloc(sizeof(int) * 3),
 			.activity = &creature_sensor
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(cs.name, "Creature Sensor");
 	return cs;
@@ -116,7 +129,8 @@ struct component create_abyss_sensor_component() {
 			.vector_size = 3,
 			.ids = malloc(sizeof(int) * 3),
 			.activity = &abyss_sensor
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(cs.name, "Abyss Sensor");
 	return cs;
@@ -134,10 +148,27 @@ struct component create_sexual_reproduction_component() {
 			.vector_size = 0,
 			.ids = malloc(sizeof(int) * 0),
 			.activity = &sexual_reproduction
-		}
+		},
+		.evolution_effect = NULL
 	};
 	strcpy(sr.name, "Sexual Reproduction");
 	return sr;
+}
+
+struct component create_fangs_component() {
+	struct component fangs = {
+		.children_count = 0,
+		.io_type = OUTPUT,
+		.activity_type = FANGS,
+		.io_component = {
+			.vector_size = 0,
+			.activity = &do_fangs
+		},
+		.evolution_effect = &make_predator
+	};
+	strcpy(fangs.name, "Fangs - Predator");
+
+	return fangs;
 }
 
 struct component create_component(enum activity_type activity_type) {
@@ -166,6 +197,9 @@ struct component create_component(enum activity_type activity_type) {
 		break;
 	case ABYSS_SENSOR:
 		res = create_abyss_sensor_component();
+		break;
+	case FANGS:
+		res = create_fangs_component();
 		break;
 	default:
 		res = create_thruster_component();
@@ -207,5 +241,6 @@ void get_component_position(struct component* component, vec2* dest) {
 
 void free_component(struct component* component) {
 	free(component->genes.buffer);
+	free(component->key.buffer);
 	free(component->io_component.ids);
 }

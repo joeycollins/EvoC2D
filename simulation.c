@@ -31,8 +31,18 @@ void init(struct Simulation* simulation) {
 
     GLFWmonitor* primary_monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primary_monitor);
-    
-    if (simulation->fullscreen) {
+
+    if (simulation->window_mode == WINDOWED_FULLSCREEN) {
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+        simulation->screen_width = mode->width;
+        simulation->screen_height = mode->height;
+        simulation->window = glfwCreateWindow(simulation->screen_width, simulation->screen_height,
+            APP_NAME, primary_monitor, NULL);
+    }else if (simulation->window_mode == FULLSCREEN) {
         simulation->screen_width = mode->width;
         simulation->screen_height = mode->height;
         simulation->window = glfwCreateWindow(simulation->screen_width, simulation->screen_height,
@@ -71,6 +81,7 @@ void init(struct Simulation* simulation) {
     //want ui and sim to use different coord systems
     glm_ortho(0.0f, (float)simulation->screen_width, (float)simulation->screen_height, 0.0f, -1.0f, 1.0f, simulation->ortho);
     glm_ortho(0.0f, (float)simulation->screen_width, 0.0f, (float)simulation->screen_height, -1.0f, 1.0f, simulation->ui_projection);
+
 }
 
 void run() {
@@ -100,6 +111,9 @@ void run() {
         glfwSwapBuffers(main_simulation.window);
         glfwPollEvents();
     }
+    
+    free_innovation_context(&main_simulation.main_innovation_context);
+    free_structural_innovation_context(&main_simulation.main_structural_innovation_context);
 }
 
 unsigned int init_shader(const char* vertex_shader_path, const char* frag_shader_path, mat4 projection) {
@@ -110,7 +124,7 @@ unsigned int init_shader(const char* vertex_shader_path, const char* frag_shader
 }
 
 void CreateAndInitSimulation() {
-    main_simulation.fullscreen = FULLSCREEN;
+    main_simulation.window_mode = (enum window_mode)WINDOW_MODE;
     init(&main_simulation);
     main_simulation.Run = &run;
     main_simulation.draw_objects = true;
@@ -135,7 +149,7 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, 1);
 
-    float speed = (float)(800 * main_simulation.delta_time);
+    float speed = (float)(1000 * main_simulation.delta_time);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         vec3 up = { 0.0f, -1.0f, 0.0f };
         glm_vec3_scale(up, speed, up);

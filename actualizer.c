@@ -25,7 +25,7 @@ void rotator(struct component* component, float* value) {
 void asexual_reproduction(struct component* component, float* value) {
 	float gate = 0.0f;
 	component->cooldown_timer -= main_simulation.delta_time;
-	if (*value > gate && component->cooldown_timer < 0 && main_simulation.main_creature_context.alive_creatures < MAX_POPULATION) {
+	if (component->cooldown_timer < 0 && main_simulation.main_creature_context.alive_creatures < MAX_POPULATION) {
 		component->this_creature->reproduce_asex(component->this_creature, 15);
 		component->this_creature->life_span -= 10;
 		component->cooldown_timer = component->cooldown;
@@ -73,4 +73,8 @@ void sexual_reproduction(struct component* component, float* value) {
 			main_simulation.main_creature_context.alive_creatures++;
 		}
 	}
+}
+
+void do_fangs(struct component* component, float* value) {
+	;
 }

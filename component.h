@@ -16,9 +16,10 @@ enum component_type {
 	OUTPUT
 };
 
-#define ACTIVITY_COUNT 7
+#define ACTIVITY_COUNT 1
 
 enum activity_type {
+	FANGS,
 	THRUSTER,
 	ROTATOR,
 	FOOD_SENSOR,
@@ -26,14 +27,13 @@ enum activity_type {
 	ENERGY_METER,
 	CREATURE_SENSOR,
 	SEXUAL_REPRO,
-	ABYSS_SENSOR,
-	FANGS
+	ABYSS_SENSOR
 };
 
 struct io_component {
-	int vector_size;
-	int* ids;
-	void (*activity)(struct component*, float*);
+	int vector_size; //number of genes (inputs/outputs) per the component
+	int* ids; //ids for the components genes
+	void (*activity)(struct component*, float*); 
 };
 
 struct component_sequence {
@@ -46,11 +46,12 @@ struct component_sequence {
 
 struct component {
 	char name[32];
-	struct int_sequence key;
+	int structural_innovation_number; 
+	struct int_sequence key; //indexed position of the component on the creature
 	float color[3];
 	mat4 local_transform;
 	vec2 local_position;
-	enum component_type io_type;
+	enum component_type io_type; 
 	enum activity_type activity_type;
 	struct io_component io_component;
 	struct gene_sequence genes;
@@ -61,6 +62,7 @@ struct component {
 	struct collider collider;
 	float cooldown;
 	float cooldown_timer;
+	void (*evolution_effect)(struct creature*);
 };
 
 struct component create_component(enum activity_type activity_type);

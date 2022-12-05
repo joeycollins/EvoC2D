@@ -1,4 +1,5 @@
 #include "creature.h"
+#include "creature.h"
 #include "sequence.h"
 #include "innovation.h"
 #include "simulation.h"
@@ -43,6 +44,7 @@ struct creature create_creature(const char name[16], float life_span, int compon
 		.life_stage = ALIVE,
 		.generation = generation,
 		.predator = false,
+		.multiplicative_color = {1.0f, 1.0f, 1.0f},
 		.components = {
 			.capacity = component_count,
 			.count = 0,
@@ -82,20 +84,27 @@ void assign_key(struct component* component, struct int_sequence key) {
 	component->key = key;
 }
 
+void assign_structural_innovation_number(struct component* component, int number) {
+	component->structural_innovation_number = number;
+}
+
 void position_component_origin(struct creature* creature, struct component* component,
 	struct structural_innovation_context* context) {
 	struct int_sequence key = get_origin_key();
 
 	struct add_structural_innovation innovation = get_add_structural_innovation(context,
-		component->activity_type, key);
+		component, key);
+	
+	assign_structural_innovation_number(component, innovation.structural_innovation_number);
 	copy_io_ids(component, innovation.ids);
 	assign_color(component, innovation.color);
 	assign_key(component, key);
+
 	creature->origin = component;
 }
 
 
-struct component* add_component(struct creature* creature, struct component component) {
+struct component* add_component(struct creature* creature, struct component component) { //this should be moved to component.c probably
 	component.this_creature = creature;
 	struct component* addr = sequence_add_component(&creature->components, component);
 	if (component.io_type == INPUT) {
@@ -105,6 +114,9 @@ struct component* add_component(struct creature* creature, struct component comp
 	else if (component.io_type == OUTPUT) {
 		creature->effective_output_count += component.io_component.vector_size;
 		creature->real_output_count++;
+	}
+	if (addr->evolution_effect != NULL) { //call evolution effect
+		addr->evolution_effect(creature);
 	}
 	return addr;
 }
@@ -146,7 +158,9 @@ void position_component_at(struct creature* creature, struct component* componen
 	}
 
 	struct add_structural_innovation innovation = get_add_structural_innovation(context,
-		component->activity_type, key);
+		component, key);
+
+	assign_structural_innovation_number(component, innovation.structural_innovation_number);
 	assign_key(component, key);
 	assign_color(component, innovation.color);
 	copy_io_ids(component, innovation.ids);
@@ -258,31 +272,14 @@ void free_creature(struct creature* creature) {
 	free_linked_network(&creature->network);
 	free_genome(&creature->genome);
 	for (int i = 0; i < creature->components.count; i++) {
-		free(creature->components.buffer[i].genes.buffer);
-		free(creature->components.buffer[i].key.buffer);
-		free(creature->components.buffer[i].io_component.ids);
+		free_component(creature->components.buffer + i);
 	}
 	free(creature->components.buffer);
 }
 
-bool io_ids_are_equal(struct component* comp1, struct component* comp2) {
-	if (comp1->io_component.vector_size == comp2->io_component.vector_size) {
-		for (int i = 0; i < comp1->io_component.vector_size; i++) {
-			if (comp1->io_component.ids[i] != comp2->io_component.ids[i]) {
-				return false;
-			}
-		}
-		return true;
-	}
-	return false;
-}
-
-//this should be sufficient for identifying equivalent comp innovs. New series of ids is returned on new innov
-bool io_first_id_is_equal(struct component* comp1, struct component* comp2) { 
-	if (comp1->io_component.ids[0] != comp2->io_component.ids[0]) {
-		return false;
-	}
-	return true;
+//component struct innov numbers are equal
+bool components_are_equivalent(struct component* comp1, struct component* comp2) { 
+	return comp1->structural_innovation_number == comp2->structural_innovation_number;
 }
 
 
@@ -334,7 +331,7 @@ void breed_creature_rec(struct component* current_father_component, struct compo
 	}else if (current_father_component == NULL) { //disjoint
 		new_component = create_component(current_mother_component->activity_type);
 	//disjoint || equivalent
-	}else if (current_mother_component == NULL || io_first_id_is_equal(current_father_component, current_mother_component)) { 
+	}else if (current_mother_component == NULL || components_are_equivalent(current_father_component, current_mother_component)) {
 		new_component = create_component(current_father_component->activity_type);		
 	}
 	else { //competing
