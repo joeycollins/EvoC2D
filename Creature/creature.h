@@ -50,6 +50,8 @@ void create_simple_creature(struct creature* creature_base);
 
 void create_simple_creature_2(struct creature* creature_base);
 
+void create_simple_creature_3(struct creature* creature_base);
+
 void free_creature(struct creature* creature);
 
 void update_creature(struct creature* creature);

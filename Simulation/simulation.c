@@ -108,6 +108,7 @@ void run() {
         //ui
         main_simulation.inspector.update(&main_simulation.inspector);
 
+        
         glfwSwapBuffers(main_simulation.window);
         glfwPollEvents();
     }

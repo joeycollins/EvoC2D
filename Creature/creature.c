@@ -248,13 +248,13 @@ void create_simple_creature_2(struct creature* creature_base) {
 	struct component rot = create_component(ROTATOR);
 	struct component* rot_addr = add_component(creature_base, rot);
 	attach_collider(rot_addr, true);
-	position_component_at(creature_base, rot_addr, thruster_addr, 4, &main_simulation.main_structural_innovation_context);
+	position_component_at(creature_base, rot_addr, creature_base->origin, 4, &main_simulation.main_structural_innovation_context);
 
 	
 	struct component asex = create_component(ASEX_REPRO);
 	struct component* asex_addr = add_component(creature_base, asex);
 	attach_collider(asex_addr, true);
-	position_component_at(creature_base, asex_addr, thruster_addr, 1, &main_simulation.main_structural_innovation_context);
+	position_component_at(creature_base, asex_addr, creature_base->origin, 6, &main_simulation.main_structural_innovation_context);
 
 	struct component em = create_component(ENERGY_METER);
 	struct component* em_addr = add_component(creature_base, em);
@@ -267,6 +267,28 @@ void create_simple_creature_2(struct creature* creature_base) {
 	creature_base->network = create_linked_network(&creature_base->genome);
 }
 
+void create_simple_creature_3(struct creature* creature_base) {
+	mat4 translation;
+	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
+	(*creature_base) = create_creature("fernando", INITIAL_CREATURE_LIFE_SPAN, 2, translation, 0);
+
+	struct component origin = create_component(FOOD_SENSOR);
+	struct component* origin_addr = add_component(creature_base, origin);
+	attach_collider(origin_addr, true);
+	position_component_origin(creature_base, origin_addr, &main_simulation.main_structural_innovation_context);
+
+
+	struct component thruster = create_component(THRUSTER);
+	struct component* thruster_addr = add_component(creature_base, thruster);
+	attach_collider(thruster_addr, true);
+	position_component_at(creature_base, thruster_addr, creature_base->origin, 2, &main_simulation.main_structural_innovation_context);
+
+	
+	assign_creature_local_positions(origin_addr, 0, 0, 0); // assign local position since we wont create a shape for all creatures spawned
+	creature_base->genome = create_genome(creature_base);
+	initial_mutate(&creature_base->genome, &main_simulation.main_innovation_context);
+	creature_base->network = create_linked_network(&creature_base->genome);
+}
 
 void free_creature(struct creature* creature) {
 	free_linked_network(&creature->network);
@@ -285,7 +307,7 @@ bool components_are_equivalent(struct component* comp1, struct component* comp2)
 
 void mutate_structural(struct creature* creature) {
 	float roll = rand_flt();
-	enum activity_type activity = (enum activity_type)(rand() % ACTIVITY_COUNT);
+	enum activity_type activity = (enum activity_type)(rand() % 1);
 	struct component new_component = create_component(activity);
 	struct component* new_component_addr = add_component(creature, new_component);
 	position_component_random(creature, new_component_addr, &main_simulation.main_structural_innovation_context);

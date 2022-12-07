@@ -2,6 +2,7 @@
 #define CREATURE_CONTEXT_INCLUDED
 
 #include <cglm/mat4.h>
+
 struct creature;
 
 //singleton context for our entites, handles shape hashing, etc 
