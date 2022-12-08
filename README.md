@@ -1,5 +1,5 @@
 # EvoC2D
-Evolution simulator written in C and OpenGL
+Evolution simulator written in C and OpenGL. More info and demos at https://joeycollins.github.io/EvoC2DSite/
 
 ## Compiling EvoC2D
 
