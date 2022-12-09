@@ -16,6 +16,7 @@ you would like the project to be build. Click configure and then generate.
 If compiling from the command-line there are many options, one such is as follows.
 
 ```console
+C:/EvoC2D> mkdir build
 C:/EvoC2D> cmake -B "C:/EvoC2D/build/"
 C:/EvoC2D> cd build
 C:/EvoC2D/build> cmake --build .
