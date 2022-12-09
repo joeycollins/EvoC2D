@@ -1,6 +1,10 @@
 # EvoC2D
 Evolution simulator written in C and OpenGL. More info and demos at https://joeycollins.github.io/EvoC2DSite/
 
+## Precompiled Release
+
+An executable is in the /CompiledRelease/ directory along with opengl32.dll. Run this from within the directory.
+
 ## Compiling EvoC2D
 
 EvoC2D was written for Windows machines. Requires opengl32.dll. This is installed by default with Visual Studio C++ development.
