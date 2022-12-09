@@ -298,5 +298,4 @@ paket-files/
 *.sln.iml
 
 Build/
-!opengl32.dll
 !evoc2d.exe
