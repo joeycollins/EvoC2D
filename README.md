@@ -3,11 +3,11 @@ Evolution simulator written in C and OpenGL. More info and demos at https://joey
 
 ## Precompiled Release
 
-An executable is in the /CompiledRelease/ directory along with opengl32.dll. Run this from within the directory.
+An executable is in the /CompiledRelease/. Run this from within the directory.
 
 ## Compiling EvoC2D
 
-EvoC2D was written for Windows machines. Requires opengl32.dll. This is installed by default with Visual Studio C++ development.
+EvoC2D was written for Windows machines. Requires opengl32.lib. This is installed by default with Visual Studio C++ development.
 
 Requires CMake. If compiling from CMake-Gui, set the source directory to
 the root of this repo and set the destination directory to the folder where
