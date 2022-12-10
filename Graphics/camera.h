@@ -10,6 +10,6 @@ struct camera {
 	vec3 front;
 };
 
-void create_camera(struct camera* camera, int screen_width, int screen_height);
+void init_camera(struct camera* camera);
 
 #endif // ! CAMERA_H

@@ -16,6 +16,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+#define ZOOM_OPTIONS_COUNT 9
+static float zoom_options[] = { 0.1f, 0.25f, 0.5f, 0.75f, 1, 2, 3, 4, 5 };
+
+void get_zoomed_view(int index, mat4 current_view, mat4 dest) {
+    vec3 zoom_scale = { zoom_options[index], zoom_options[index], 1.0f };
+    glm_scale_to(current_view, zoom_scale, dest);
+}
 
 void init(struct Simulation* simulation) {
     glfwInit();
@@ -66,6 +75,7 @@ void init(struct Simulation* simulation) {
     glfwSetFramebufferSizeCallback(simulation->window, framebuffer_size_callback);
     glfwSetKeyCallback(simulation->window, key_callback);
     glfwSetMouseButtonCallback(simulation->window, mouse_button_callback);
+    glfwSetScrollCallback(simulation->window, scroll_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -77,7 +87,7 @@ void init(struct Simulation* simulation) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initialize_text_character_set(); //add font
 
-    create_camera(&simulation->main_camera, simulation->screen_width, simulation->screen_height); //create the main camera
+    init_camera(&simulation->main_camera); //create the main camera
     //want ui and sim to use different coord systems
     glm_ortho(0.0f, (float)simulation->screen_width, (float)simulation->screen_height, 0.0f, -1.0f, 1.0f, simulation->ortho);
     glm_ortho(0.0f, (float)simulation->screen_width, 0.0f, (float)simulation->screen_height, -1.0f, 1.0f, simulation->ui_projection);
@@ -100,11 +110,14 @@ void run() {
         vec3 center;
         glm_vec3_add(main_simulation.main_camera.position, main_simulation.main_camera.front, center);
         glm_lookat(main_simulation.main_camera.position, center, main_simulation.main_camera.up, main_simulation.view);
+        //apply zoom
+        mat4 zoomed_view;
+        get_zoomed_view(main_simulation.zoom, main_simulation.view, zoomed_view);
 
         //updates
-        main_simulation.main_creature_context.update(&main_simulation.main_creature_context);
-        main_simulation.main_food_context.update(&main_simulation.main_food_context);
-        main_simulation.main_abyss_context.update(&main_simulation.main_abyss_context);
+        main_simulation.main_creature_context.update(&main_simulation.main_creature_context, zoomed_view);
+        main_simulation.main_food_context.update(&main_simulation.main_food_context, zoomed_view);
+        main_simulation.main_abyss_context.update(&main_simulation.main_abyss_context, zoomed_view);
         //ui
         main_simulation.inspector.update(&main_simulation.inspector);
 
@@ -128,6 +141,7 @@ void CreateAndInitSimulation() {
     main_simulation.window_mode = (enum window_mode)WINDOW_MODE;
     init(&main_simulation);
     main_simulation.Run = &run;
+    main_simulation.zoom = 4;
     main_simulation.draw_objects = true;
     main_simulation.shader_lib.creature_shader = init_shader("indivvertexshader.vsh", "fragmentshader1.fsh", main_simulation.ortho);
     main_simulation.shader_lib.food_shader = init_shader("coloredvertexshader.vsh", "fragmentshader1.fsh", main_simulation.ortho);
@@ -181,6 +195,24 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     else if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
         main_simulation.draw_objects = !main_simulation.draw_objects;
     }
+    else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) { //reset zoom and camera
+        main_simulation.zoom = 4;
+        init_camera(&main_simulation.main_camera);
+    }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    int newidx = main_simulation.zoom;
+    if (yoffset > 0) {
+        newidx++;
+    }
+    else if (yoffset < 0) {
+        newidx--;
+    }
+    if (newidx >= 0 && newidx < ZOOM_OPTIONS_COUNT) {
+        main_simulation.zoom = newidx;
+    }
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -193,10 +225,16 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         vec3 t = { xpos, ypos, 0 };
         glm_translate(pos, t);
 
+        //account for zoom
+        mat4 zoomed_view;
+        get_zoomed_view(main_simulation.zoom, main_simulation.view, zoomed_view);
+        mat4 inv_zoomed_view;
+        glm_mat4_inv(zoomed_view, inv_zoomed_view);
+
         mat4 comp1;
-        glm_mat4_inv(main_simulation.view, comp1);
-        glm_mat4_mul(comp1, main_simulation.ortho, comp1);
-        glm_mat4_mul(pos, comp1, comp1);
+        glm_mat4_mul(pos, main_simulation.ortho, comp1);
+        glm_mat4_mul(inv_zoomed_view, comp1, comp1);
+        
 
         struct creature* closest_creature = NULL;
         float closest = FLT_MAX;

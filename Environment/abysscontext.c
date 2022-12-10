@@ -10,7 +10,7 @@
 
 extern struct Simulation main_simulation;
 
-void update_abyss_context(struct abyss_context* context){
+void update_abyss_context(struct abyss_context* context, mat4 view){
 	for (int i = 0; i < context->abysses_count; i++) {
 		struct abyss* this_abyss = context->abysses + i;
 		
@@ -24,7 +24,7 @@ void update_abyss_context(struct abyss_context* context){
 		unsigned int uniform_loc = glGetUniformLocation(shader, "transform");
 		glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)this_abyss->transform);
 		uniform_loc = glGetUniformLocation(shader, "view");
-		glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)main_simulation.view);
+		glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)view);
 		draw_from_pool_ebo(context->rendering_info);
 	}
 }

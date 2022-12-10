@@ -11,7 +11,7 @@
 #include "abysscontext.h"
 #include <stdbool.h>
 #include <cglm/mat4.h>
-
+#include <cglm/vec3.h>
 
 struct organism; struct GLFWwindow; typedef struct GLFWwindow GLFWwindow;
 
@@ -38,6 +38,7 @@ struct Simulation {
 	unsigned int screen_height;
 	mat4 view;
 	mat4 ortho;
+	int zoom;
 	mat4 ui_projection;
 	GLFWwindow* window;
 	unsigned int current_vao;

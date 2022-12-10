@@ -12,15 +12,15 @@
 
 extern struct Simulation main_simulation;
 
-void render_creature_indiv(struct creature* creature, unsigned int shader);
+void render_creature_indiv(struct creature* creature, unsigned int shader, mat4 view);
 
-void update_creature_context(struct creature_context* context) {
+void update_creature_context(struct creature_context* context, mat4 view) {
     for (int i = 0; i < context->creatures_count; i++) {
         struct creature* creature = context->creatures[i];
         if (creature->life_stage == ALIVE) {
             update_creature(creature);
             if (main_simulation.draw_objects) {
-                render_creature_indiv(creature, context->shader);
+                render_creature_indiv(creature, context->shader, view);
             }
         }
     }
@@ -30,11 +30,11 @@ void render_creature_indiv_rec(struct component* component, mat4 transform, unsi
 //render the creature by drawing each component and joint separately
 //could potentially improve performance by looping through component array instead and drawing based on assigned local position, however adding joints
 //would limit that. So for now this is the most performative draw method given what the creatures should look like. 
-void render_creature_indiv(struct creature* creature, unsigned int shader) {
+void render_creature_indiv(struct creature* creature, unsigned int shader, mat4 view) {
     use_shader(shader);
     bind_vao(main_simulation.creature_vao.vao);
     unsigned int uniform_loc = glGetUniformLocation(shader, "view");
-    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)main_simulation.view);
+    glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)view);
     render_creature_indiv_rec(creature->origin, creature->transform, shader, GROWTH_RADIUS, 0);
 }
 

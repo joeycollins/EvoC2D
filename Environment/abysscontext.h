@@ -15,7 +15,7 @@ struct abyss_context {
 	int abysses_count;
 	struct abyss* abysses;
 	struct vao_pool_rendering_info rendering_info;
-	void (*update)(struct abyss_context*);
+	void (*update)(struct abyss_context*, mat4);
 	unsigned int shader;
 };
 

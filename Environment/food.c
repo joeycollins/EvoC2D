@@ -11,9 +11,9 @@
 extern struct Simulation main_simulation;
 
 void position_food(struct food* food, float radius);
-void render_food(struct food_context* context, struct food* food);
+void render_food(struct food_context* context, struct food* food, mat4 view);
 
-void update_food_context(struct food_context* context) {
+void update_food_context(struct food_context* context, mat4 view) {
 	for (int i = 0; i < context->food_count; i++) {
 		struct food* food = &context->food[i];
 		if (!food->alive) {
@@ -25,18 +25,18 @@ void update_food_context(struct food_context* context) {
 			}
 		}
 		else {
-			render_food(context, food);
+			render_food(context, food, view);
 		}
 	}
 }
 
-void render_food(struct food_context* context, struct food* food) {
+void render_food(struct food_context* context, struct food* food, mat4 view) {
 	unsigned int shader = context->shader;
 	use_shader(shader);
 	unsigned int uniform_loc = glGetUniformLocation(shader, "transform");
 	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)food->transform);
 	uniform_loc = glGetUniformLocation(shader, "view");
-	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)main_simulation.view);
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, (GLfloat*)view);
 	draw_from_pool_ebo(context->render_info);
 }
 

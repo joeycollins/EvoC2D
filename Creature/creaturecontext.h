@@ -12,7 +12,7 @@ struct creature_context {
 	int creatures_count;
 	int alive_creatures;
 	struct creature** creatures; 
-	void (*update)(struct creature_context*);
+	void (*update)(struct creature_context*, mat4);
 };
 
 struct creature_context create_creature_context(int count, void (*create_creature)(struct creature*), unsigned int shader);
