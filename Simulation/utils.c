@@ -1,6 +1,8 @@
 #include "utils.h"
 #include <stdlib.h>
 #include <cglm/cglm.h>
+#include <stdbool.h>
+#include <string.h>
 
 float rand_flt() {
 	int random = rand();
@@ -71,4 +73,37 @@ void get_random_color(float* rdest, float* gdest, float* bdest) {
 	*rdest = x / RAND_MAX;
 	*gdest = y / RAND_MAX;
 	*bdest = z / RAND_MAX;
+}
+
+
+char* generate_random_name(char name[12]) {
+	char vowels[5] = { 'a', 'e', 'i', 'o', 'u' };
+	char consonants[21] = {'b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'};
+
+	int i = 0;
+	int vowels_ct = 0;
+	int cons_ct = 0;
+	while (i < 12) {
+		float random = rand_flt();
+		char thischar;
+		if (cons_ct >=3 || (random < 0.2f && vowels_ct< 2)) {
+			int vowel_index = rand() % 5;
+			thischar = vowels[vowel_index];
+			cons_ct = 0;
+			vowels_ct++;
+			
+		}else{
+			int cons_index = rand() % 21;
+			thischar = consonants[cons_index];
+			vowels_ct = 0;
+			cons_ct++;
+		}
+
+		name[i] = thischar;
+		i++;
+
+		if (rand_flt() > 1 - (i - 2) * 0.1f) {
+			break;
+		}
+	}
 }

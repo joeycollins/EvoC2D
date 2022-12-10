@@ -29,3 +29,13 @@ Open the project in your build folder with visual studio, right click the soluti
 and change the value from ALL_BUILD to evoc2d from the dropdown menu. Apply changes.
 
 Run the program.
+
+## Controls
+
+Left click on Creatures to view inspector window.
+
+i - opens/closes inspector window
+mousewheel - zoom
+w,a,s,d - camera movement
+space - reset camera
+esc - quit

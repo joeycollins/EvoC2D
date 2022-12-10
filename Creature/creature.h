@@ -21,7 +21,7 @@ enum life_stage {
 };
 
 struct creature {
-	char name[16];
+	char name[12];
 	float multiplicative_color[3]; //rgb thats added to each component color, used mainly to see predator creatures
 	mat4 transform;
 	int generation;
@@ -43,7 +43,7 @@ struct creature {
 	void (*reproduce_sex)(struct creature*, struct creature*, float);
 };
 
-struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation, int generation);
+struct creature create_creature(float life_span, int component_count, mat4 translation, int generation);
 
 //Creates a simple creature with a food sensor and a thruster
 void create_simple_creature(struct creature* creature_base);

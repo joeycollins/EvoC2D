@@ -16,18 +16,18 @@ enum component_type {
 	OUTPUT
 };
 
-#define ACTIVITY_COUNT 1
+#define ACTIVITY_COUNT 5
 
 enum activity_type {
-	FANGS,
 	THRUSTER,
 	ROTATOR,
-	FOOD_SENSOR,
-	ASEX_REPRO,
-	ENERGY_METER,
 	CREATURE_SENSOR,
+	ASEX_REPRO,
+	ABYSS_SENSOR,
+	ENERGY_METER,
 	SEXUAL_REPRO,
-	ABYSS_SENSOR
+	FANGS,
+	FOOD_SENSOR,
 };
 
 struct io_component {

@@ -35,7 +35,7 @@ void assign_creature_local_positions(struct component* component, float offset_x
 /*
 Create a new creature with life_span and memory for # of component_count, which should be known
 */
-struct creature create_creature(const char name[16], float life_span, int component_count, mat4 translation, int generation) {
+struct creature create_creature(float life_span, int component_count, mat4 translation, int generation) {
 	struct creature new_creature = {
 		.effective_input_count = 0,
 		.effective_output_count = 0,
@@ -55,8 +55,8 @@ struct creature create_creature(const char name[16], float life_span, int compon
 		.reproduce_sex = &breed_creature,
 		.origin = NULL
 	};
-	//Set name
-	strcpy(new_creature.name, name);
+
+	generate_random_name(new_creature.name);
 	//Set transform
 	glm_mat4_copy(translation, new_creature.transform);
 	vec3 scale = { creature_scale_factor, creature_scale_factor, 1.0f };
@@ -188,7 +188,7 @@ void position_component_by_key(struct creature* creature, struct component* comp
 void create_simple_creature(struct creature* creature_base) {
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", INITIAL_CREATURE_LIFE_SPAN, 5, translation, 0);
+	(*creature_base) = create_creature(INITIAL_CREATURE_LIFE_SPAN, 5, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -232,7 +232,7 @@ void create_simple_creature(struct creature* creature_base) {
 void create_simple_creature_2(struct creature* creature_base) {
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", INITIAL_CREATURE_LIFE_SPAN, 5, translation, 0);
+	(*creature_base) = create_creature(INITIAL_CREATURE_LIFE_SPAN, 5, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -270,7 +270,7 @@ void create_simple_creature_2(struct creature* creature_base) {
 void create_simple_creature_3(struct creature* creature_base) {
 	mat4 translation;
 	get_random_translation(0, 0, CREATURE_SPAWN_RADIUS, translation);
-	(*creature_base) = create_creature("fernando", INITIAL_CREATURE_LIFE_SPAN, 2, translation, 0);
+	(*creature_base) = create_creature(INITIAL_CREATURE_LIFE_SPAN, 2, translation, 0);
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
@@ -328,7 +328,7 @@ void breed_creature(struct creature* FATHER_creature, struct creature* mother_cr
 	}
 	//could count before. currently just sac the memory, shouldnt be an issue
 	//reallocing is not safe for component count since the breed rec fn will set the origin and stored component pointers for component children.
-	*dest = create_creature(FATHER_creature->name, life_span,
+	*dest = create_creature(life_span,
 		FATHER_creature->components.count + mother_creature->components.count + mutate_structurally, translation, FATHER_creature->generation + 1);
 	breed_creature_rec(FATHER_creature->origin, mother_creature->origin,
 		dest, true);
@@ -415,7 +415,7 @@ void breed_creature_asex(struct creature* mother, float life_span) {
 	mat4 translation;
 	get_translation_matrix(mother->transform, translation);
 	
-	*dest = create_creature(mother->name, life_span, mother->components.count, translation, mother->generation + 1);
+	*dest = create_creature(life_span, mother->components.count, translation, mother->generation + 1);
 	breed_creature_asex_rec(mother->origin, dest, life_span);
 	assign_creature_local_positions(dest->origin, 0.0f, 0.0f, 0.0f);
 	dest->genome = create_genome(dest);
