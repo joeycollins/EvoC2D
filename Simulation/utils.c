@@ -55,9 +55,9 @@ float mat4_distance_2d(mat4 transform1, mat4 transform2) {
 }
 
 char* float_to_string(float value) {
-	int len = snprintf(NULL, 0, "%f", value);
+	int len = snprintf(NULL, 0, "%.2f", value);
 	char* dest = malloc(len + 1);
-	snprintf(dest, len + 1, "%f", value);
+	snprintf(dest, len + 1, "%.2f", value);
 	return dest;
 }
 

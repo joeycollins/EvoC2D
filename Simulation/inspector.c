@@ -27,44 +27,63 @@ void render_panel(struct inspector* inspector, float x_offset, float vertical_sc
 void update_inspector(struct inspector* inspector) {
 	if (inspector->enabled && inspector->target_creature != NULL) {
 		float x_offset = main_simulation.screen_width - (main_simulation.screen_width / 4) - 30;
-		float vertical_scaling = main_simulation.screen_height - 60;
+		float inspector_height = main_simulation.screen_height - 60;
+
 		float text_x_offset = 30, text_y_offset = 60;
-		float text_x_offset2 = 450;
-		render_panel(inspector,x_offset, vertical_scaling);
-		float text_color[3] = { 0,0,0 };
-		float red_color[3] = { 1, 0, 0 };
-		float green_color[3] = { 0, 1,0 };
-		render_text(inspector->text_shader, "Inspector", x_offset + text_x_offset, vertical_scaling - text_y_offset, 2.0f, text_color);
-		render_text(inspector->text_shader, "Name: ", x_offset + text_x_offset, vertical_scaling - text_y_offset*2 , 1.0f, text_color);
-		render_text(inspector->text_shader, inspector->target_creature->name, x_offset + text_x_offset + text_x_offset2, vertical_scaling - text_y_offset * 2, 1.0f, text_color);
-		render_text(inspector->text_shader, "Generation: ", x_offset + text_x_offset, vertical_scaling - text_y_offset*3, 1.0f, text_color);
+
+		float titlescale = 1.2f;
+		float bodyscale = 0.75f;
+
+		render_panel(inspector,x_offset, inspector_height);
+
+		float text_color[3] = { 0, 0, 0 };
+		float red_color[3] =  { 1, 0, 0 };
+		float green_color[3] = { 0, 1, 0 };
+		float current_height = text_y_offset;
+		float last_line_width = 0, last_line_height = 0; //height of the previous lines of text
+		//Inspector Title
+		render_text(inspector->text_shader, "Inspector", x_offset + text_x_offset, inspector_height - current_height, titlescale, text_color, &last_line_width, &last_line_height);
+		current_height += last_line_height;
+		//NAME
+		render_text(inspector->text_shader, "Name:  ", x_offset + text_x_offset, inspector_height - current_height , bodyscale, text_color, &last_line_width, &last_line_height);
+		render_text(inspector->text_shader, inspector->target_creature->name, x_offset + text_x_offset + last_line_width, inspector_height - current_height, bodyscale, text_color, &last_line_width, &last_line_height);
+		current_height += last_line_height;
+		//GENERATION
+		render_text(inspector->text_shader, "Generation:  ", x_offset + text_x_offset, inspector_height - current_height, bodyscale, text_color, &last_line_width, &last_line_height);
 		char* gen_str=int_to_string(inspector->target_creature->generation);
-		render_text(inspector->text_shader, gen_str, x_offset + text_x_offset + text_x_offset2, vertical_scaling - text_y_offset * 3, 1.0f, text_color);
+		render_text(inspector->text_shader, gen_str, x_offset + text_x_offset + last_line_width, inspector_height - current_height, bodyscale, text_color, &last_line_width, &last_line_height);
 		free(gen_str);
-
-		render_text(inspector->text_shader, "Remaining Life: ", x_offset + text_x_offset, vertical_scaling - text_y_offset * 4, 1.0f, text_color);
-
+		current_height += last_line_height;
+		//REMAINING LIFE
+		render_text(inspector->text_shader, "Remaining Life:  ", x_offset + text_x_offset, inspector_height - current_height, bodyscale, text_color, &last_line_width, &last_line_height);
 		char* life_str = float_to_string(inspector->target_creature->remaining_life_span);
-		render_text(inspector->text_shader, life_str, x_offset + text_x_offset + text_x_offset2, vertical_scaling - text_y_offset * 4, 1.0f, text_color);
+		render_text(inspector->text_shader, life_str, x_offset + text_x_offset + last_line_width, inspector_height - current_height, bodyscale, text_color, &last_line_width, &last_line_height);
+		current_height += last_line_height;
 		free(life_str);
 
-		render_text(inspector->text_shader, "State: ", x_offset + text_x_offset, vertical_scaling - text_y_offset * 5, 1.0f, text_color);
-
+		//STATE
+		render_text(inspector->text_shader, "State:   ", x_offset + text_x_offset, inspector_height - current_height, bodyscale, text_color, &last_line_width, &last_line_height);
 
 		switch (inspector->target_creature->life_stage) {
 		case ALIVE:
-			render_text(inspector->text_shader, "Alive", x_offset + text_x_offset + text_x_offset2, vertical_scaling - text_y_offset * 5, 1.0f, green_color);
+			render_text(inspector->text_shader, "Alive", x_offset + text_x_offset + last_line_width, inspector_height - current_height, bodyscale, green_color, &last_line_width, &last_line_height);
 			break;
 		default:
-			render_text(inspector->text_shader, "Dead", x_offset + text_x_offset + text_x_offset2, vertical_scaling - text_y_offset * 5, 1.0f, red_color);
+			render_text(inspector->text_shader, "Dead", x_offset + text_x_offset + last_line_width, inspector_height - current_height, bodyscale, red_color, &last_line_width, &last_line_height);
 			break;
 		}
 
-		render_text(inspector->text_shader, "Components: ", x_offset + text_x_offset, vertical_scaling - text_y_offset * 7, 2.0f, text_color);
+		current_height += last_line_height;
+
+		//COMPONENTS
+		current_height += text_y_offset; // new section give more space
+		render_text(inspector->text_shader, "Components: ", x_offset + text_x_offset, inspector_height - current_height, titlescale, text_color, &last_line_width, &last_line_height);
+		current_height += last_line_height;
 
 		for (int i = 0; i < inspector->target_creature->components.count; i++) {
 			struct component* component = inspector->target_creature->components.buffer + i;
-			render_text(inspector->text_shader, component->name, x_offset + text_x_offset, vertical_scaling - text_y_offset * (9 + i), 1.0f, component->color);
+			render_text(inspector->text_shader, component->name, x_offset + text_x_offset, inspector_height - current_height, bodyscale, component->color, &last_line_width, &last_line_height);
+			current_height += last_line_height;
 		}
 
 	}

@@ -262,6 +262,8 @@ void reset_shader_orthos() {//reset projection in certain shaders on window resi
     glUniformMatrix4fv(glGetUniformLocation(main_simulation.shader_lib.text_shader, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ui_projection);
     use_shader(main_simulation.shader_lib.inspector_panel_shader);
     glUniformMatrix4fv(glGetUniformLocation(main_simulation.shader_lib.inspector_panel_shader, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ui_projection);
+    use_shader(main_simulation.shader_lib.food_shader);
+    glUniformMatrix4fv(glGetUniformLocation(main_simulation.shader_lib.food_shader, "projection"), 1, GL_FALSE, (GLfloat*)main_simulation.ortho);
 }
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

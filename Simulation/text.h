@@ -17,6 +17,6 @@ struct text_character text_character_set[ASCII_MAX];
 void initialize_text_character_set();
 
 
-void render_text(unsigned int shader_program, char* text, float x, float y, float scale, float color[3]);
+void render_text(unsigned int shader_program, char* text, float x, float y, float scale, float color[3], float* out_width, float* out_height);
 
 #endif

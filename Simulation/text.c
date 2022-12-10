@@ -67,7 +67,7 @@ void initialize_text_character_set() {
     FT_Done_FreeType(ft);
 }
 
-void render_text(unsigned int shader_program, char* text, float x, float y, float scale, float color[3])
+void render_text(unsigned int shader_program, char* text, float x, float y, float scale, float color[3], float* out_width, float* out_height)
 {
     use_shader(shader_program);
     glUniform3f(glGetUniformLocation(shader_program, "textColor"), color[0], color[1], color[2]);
@@ -75,11 +75,13 @@ void render_text(unsigned int shader_program, char* text, float x, float y, floa
     bind_vao(main_simulation.text_vao.vao);
 
     char* c;
+    float width = 0, height = 0;
     for (c = text; *c != '\0'; c++)
     {
         struct text_character ch = text_character_set[*c];
 
-        float xpos = x + ch.bearing[0] * scale;
+        float xbearing = ch.bearing[0] * scale;
+        float xpos = x + xbearing;
         float ypos = y - (ch.size[1] - ch.bearing[1]) * scale;
 
         float w = ch.size[0] * scale;
@@ -102,8 +104,21 @@ void render_text(unsigned int shader_program, char* text, float x, float y, floa
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+
+        float adv_x = (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+        width += adv_x;
+        x += adv_x;
+
+        float char_height = (ch.size[1] + ch.bearing[1]) * scale;
+        if (char_height > height) {
+            height = char_height;
+        }
+    }
+    if (out_width != NULL) {
+        *out_width = width;
+    }
+    if (out_height != NULL) {
+        *out_height = height;
     }
     //glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
