@@ -34,8 +34,8 @@ Run the program.
 
 Left click on Creatures to view inspector window.
 
-i - opens/closes inspector window
-mousewheel - zoom
-w,a,s,d - camera movement
-space - reset camera
-esc - quit
+* i - opens/closes inspector window
+* mousewheel - zoom
+* w,a,s,d - camera movement
+* space - reset camera
+* esc - quit
