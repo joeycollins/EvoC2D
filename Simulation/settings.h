@@ -5,7 +5,7 @@
 #include <math.h>
 
 #define APP_NAME "EVOC2D"
-#define WINDOW_MODE 1//0 -fs, 1 -window fs, 2 -windowed
+#define WINDOW_MODE 2//0 -fs, 1 -window fs, 2 -windowed
 #define DEFAULT_SCRN_WIDTH 1920
 #define DEFAULT_SCRN_HEIGHT 1080
 #define INITIAL_CREATURE_COUNT 180
@@ -19,7 +19,7 @@
 #define GROWTH_RADIUS 0.50f
 #define GROWTH_ANGLE 2.0f * M_PI / MAX_CHILDREN
 #define CREATURE_SPAWN_RADIUS 5000
-#define STRUCTURAL_MUTATION_CHANCE 0.005
+#define STRUCTURAL_MUTATION_CHANCE 0.005f
 #define ABYSS_COUNT 1
 #define MAX_SIGHT 3000
 #define MAX_POPULATION 800

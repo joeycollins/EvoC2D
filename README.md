@@ -28,6 +28,8 @@ three: GLFW, CGLM, and freetype.
 Open the project in your build folder with visual studio, right click the solution, goto Properties>Common Properties>Startup Project>Single Startup Project
 and change the value from ALL_BUILD to evoc2d from the dropdown menu. Apply changes.
 
+Once the external projects/dependencies have been built, I recommend preventing them from being rebuilt in your solution settings; Solution>Properties>Configuration Properties>Configuration>uncheck build option for glfwProj, freetypeProj, and cglmProj. Turning off build for these projects will speed up the build time of EvoC2D.
+
 Run the program.
 
 ## Controls

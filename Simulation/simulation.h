@@ -11,7 +11,6 @@
 #include "abysscontext.h"
 #include <stdbool.h>
 #include <cglm/mat4.h>
-#include <cglm/vec3.h>
 
 struct organism; struct GLFWwindow; typedef struct GLFWwindow GLFWwindow;
 

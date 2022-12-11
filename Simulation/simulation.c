@@ -68,7 +68,7 @@ void init(struct Simulation* simulation) {
     {
         printf("Failed to create GLFW window");
         glfwTerminate();
-        return -1;
+        return;
     }
 
     glfwMakeContextCurrent(simulation->window);
@@ -80,7 +80,7 @@ void init(struct Simulation* simulation) {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         printf("Failed to initialize GLAD");
-        return -1;
+        return;
     }
 
     glEnable(GL_BLEND);

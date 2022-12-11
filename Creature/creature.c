@@ -118,6 +118,8 @@ struct component* add_component(struct creature* creature, struct component comp
 	if (addr->evolution_effect != NULL) { //call evolution effect
 		addr->evolution_effect(creature);
 	}
+
+	attach_collider(addr, true);
 	return addr;
 }
 
@@ -192,35 +194,29 @@ void create_simple_creature(struct creature* creature_base) {
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
-	attach_collider(origin_addr, true);
 	position_component_origin(creature_base, origin_addr, &main_simulation.main_structural_innovation_context);
 
 	
 	struct component thruster = create_component(THRUSTER);
 	struct component* thruster_addr = add_component(creature_base, thruster);
-	attach_collider(thruster_addr, true);
 	position_component_at(creature_base, thruster_addr, creature_base->origin, 2, &main_simulation.main_structural_innovation_context);
 
 
 	struct component sex = create_component(SEXUAL_REPRO); 
 	struct component* sex_addr = add_component(creature_base, sex);
-	attach_collider(sex_addr, true);
 	position_component_at(creature_base, sex_addr, thruster_addr, 1, &main_simulation.main_structural_innovation_context);
 	
 	/*
 	struct component cresen = create_component(CREATURE_SENSOR);
 	struct component* cresen_addr = add_component(creature_base, cresen);
-	attach_collider(cresen_addr, true);
 	position_component_at(creature_base, cresen_addr, sex_addr, 3, &main_simulation.main_structural_innovation_context);
 	*/
 	struct component asensor = create_component(ABYSS_SENSOR);
 	struct component* asensor_addr = add_component(creature_base, asensor);
-	attach_collider(asensor_addr, true);
 	position_component_at(creature_base, asensor_addr, sex_addr, -1, &main_simulation.main_structural_innovation_context);
 	/*
 	struct component asex = create_component(ASEX_REPRO);
 	struct component* asex_addr = add_component(creature_base, asex);
-	attach_collider(asex_addr, true);
 	position_component_at(creature_base, asex_addr, thruster_addr, -1, &main_simulation.main_structural_innovation_context);
 	*/
 	assign_creature_local_positions(origin_addr, 0, 0, 0); // assign local position since we wont create a shape for all creatures spawned
@@ -236,29 +232,24 @@ void create_simple_creature_2(struct creature* creature_base) {
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
-	attach_collider(origin_addr, true);
 	position_component_origin(creature_base, origin_addr, &main_simulation.main_structural_innovation_context);
 
 
 	struct component thruster = create_component(THRUSTER);
 	struct component* thruster_addr = add_component(creature_base, thruster);
-	attach_collider(thruster_addr, true);
 	position_component_at(creature_base, thruster_addr, creature_base->origin, 2, &main_simulation.main_structural_innovation_context);
 
 	struct component rot = create_component(ROTATOR);
 	struct component* rot_addr = add_component(creature_base, rot);
-	attach_collider(rot_addr, true);
 	position_component_at(creature_base, rot_addr, creature_base->origin, 4, &main_simulation.main_structural_innovation_context);
 
 	
 	struct component asex = create_component(ASEX_REPRO);
 	struct component* asex_addr = add_component(creature_base, asex);
-	attach_collider(asex_addr, true);
 	position_component_at(creature_base, asex_addr, creature_base->origin, 6, &main_simulation.main_structural_innovation_context);
 
 	struct component em = create_component(ENERGY_METER);
 	struct component* em_addr = add_component(creature_base, em);
-	attach_collider(em_addr, true);
 	position_component_at(creature_base, em_addr, origin_addr, 3, &main_simulation.main_structural_innovation_context);
 
 	assign_creature_local_positions(origin_addr, 0, 0, 0); // assign local position since we wont create a shape for all creatures spawned
@@ -274,13 +265,11 @@ void create_simple_creature_3(struct creature* creature_base) {
 
 	struct component origin = create_component(FOOD_SENSOR);
 	struct component* origin_addr = add_component(creature_base, origin);
-	attach_collider(origin_addr, true);
 	position_component_origin(creature_base, origin_addr, &main_simulation.main_structural_innovation_context);
 
 
 	struct component thruster = create_component(THRUSTER);
 	struct component* thruster_addr = add_component(creature_base, thruster);
-	attach_collider(thruster_addr, true);
 	position_component_at(creature_base, thruster_addr, creature_base->origin, 2, &main_simulation.main_structural_innovation_context);
 
 	
@@ -307,11 +296,10 @@ bool components_are_equivalent(struct component* comp1, struct component* comp2)
 
 void mutate_structural(struct creature* creature) {
 	float roll = rand_flt();
-	enum activity_type activity = (enum activity_type)(rand() % 1);
+	enum activity_type activity = (enum activity_type)(rand() % ACTIVITY_COUNT);
 	struct component new_component = create_component(activity);
 	struct component* new_component_addr = add_component(creature, new_component);
 	position_component_random(creature, new_component_addr, &main_simulation.main_structural_innovation_context);
-	attach_collider(new_component_addr, true);
 }
 
 
@@ -367,7 +355,6 @@ void breed_creature_rec(struct component* current_father_component, struct compo
 		}
 	}
 	struct component* new_comp_addr = add_component(dest_creature, new_component);
-	attach_collider(new_comp_addr, true);
 	if (at_origin) {
 		position_component_origin(dest_creature, new_comp_addr, &main_simulation.main_structural_innovation_context);
 		at_origin = false;
@@ -428,7 +415,6 @@ void breed_creature_asex_rec(struct component* current_component, struct creatur
 	//
 	struct component new_component = create_component(current_component->activity_type);
 	struct component* new_comp_addr = add_component(dest_creature, new_component);
-	attach_collider(new_comp_addr, true);
 	if (at_origin) {
 		position_component_origin(dest_creature, new_comp_addr, &main_simulation.main_structural_innovation_context);
 		at_origin = false;

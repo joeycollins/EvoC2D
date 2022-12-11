@@ -56,7 +56,7 @@ struct component {
 	struct io_component io_component;
 	struct gene_sequence genes;
 	int children_count;
-	struct component* children[MAX_CHILDREN];
+	struct component* children[MAX_CHILDREN]; //pointers to creature component sequence, freed by the creature
 	bool child_exists[MAX_CHILDREN];
 	struct creature* this_creature;
 	struct collider collider;
